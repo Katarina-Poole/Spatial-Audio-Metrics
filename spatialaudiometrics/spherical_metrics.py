@@ -17,9 +17,11 @@ from math import degrees, acos
 import numpy as np
 
 def polar2cartesian(az,el,dist):
-    '''
-    Converts polar coordinates (azimuth and elevation) to cartesian
-    '''
+    """Converts polar coordinates (azimuth and elevation) to cartesian
+    :param az: Azimuth coordinate
+    :param el: Elevation coordinate
+    :param dist: Distance coordinate
+    """
     az = np.deg2rad(az)
     el = np.deg2rad(el)
     x = dist * np.cos(az) * np.cos(el)
@@ -28,9 +30,8 @@ def polar2cartesian(az,el,dist):
     return x,y,z
 
 def great_circle_error(az1,el1,az2,el2):
-    '''
-    Calculate the great circle arror between two azimuth and elevation locations
-    '''
+    """Calculate the great circle arror between two azimuth and elevation locations
+    """
     x1,y1,z1 = polar2cartesian(az1,el1,1)
     x2,y2,z2 = polar2cartesian(az2,el2,1)
     coords1 = [x1,y1,z1]
@@ -40,8 +41,7 @@ def great_circle_error(az1,el1,az2,el2):
     return angle
 
 def spherical2interaural(az,el):
-    '''
-    Converts spherical (azimuth and elevation) to interaural cordinates (lateral and polar)
+    """Converts spherical (azimuth and elevation) to interaural cordinates (lateral and polar)
     lat	lateral angle in deg, [-90 deg, +90 deg]
     pol	polar angle in deg, [-90 deg, 270 deg]
     Currently doesn't take array 
@@ -51,7 +51,7 @@ def spherical2interaural(az,el):
     Url: http://amtoolbox.org/amt-1.5.0/doc/common/sph2horpolar.php
     Original author: Peter L. Sondergaard
 
-    '''
+    """
     # Firstly need to make sure the azi angles are bound between 0 and 360
     az      = wrap_angle(az,0,360)
     el      = wrap_angle(el,0,360)
@@ -79,11 +79,10 @@ def spherical2interaural(az,el):
     return lat, pol
 
 def wrap_angle(angle,low = -180,high = 180):
-    '''
-    Wraps the angle between a specific range.
+    """Wraps the angle between a specific range.
     Default is -180 and 180 to get it to work well with 
     the apply function in pandas
-    '''
+    """
     wrap_range = high-low
     angle =  angle%wrap_range
 

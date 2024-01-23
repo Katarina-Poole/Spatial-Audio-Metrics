@@ -1,5 +1,5 @@
 '''
-load_example_data.py. Functions that loads in example data
+signal_processing.py. Functions that loads in example data
 
 Copyright (C) 2024  Katarina C. Poole
 
@@ -17,13 +17,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from importlib import resources
-import pandas as pd
+import numpy as np
 
-def load_data():
+def calculate_lsd(tf1,tf2):
     '''
-    Loads in example data
+    Calculates the log spectral distortion between two transfer functions tf1 and tf2
+    returns a list of values which is the lsd for each frequency
     '''
-    with resources.path("spatialaudiometrics","example_data_1.csv") as df:
-        return pd.read_csv(df)
-    print(df)
+    lsd = 20*np.log10(tf1/tf2)
+    return lsd
+
+def calculate_lsd_across_freqs(tf1,tf2):
+    '''
+    Calculates the log spectral distortion across frequencies between two transfer functions tf1 and tf2
+    returns a list of values which is the lsd for each frequency
+    '''
+    lsd = calculate_lsd(tf1,tf2)
+    lsd = np.sqrt(np.mean(lsd**2))
+    return lsd 

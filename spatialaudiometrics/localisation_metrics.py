@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 import pandas as pd
 import scipy.stats as sts
-from spatialaudiometrics import spherical_metrics as sm
+import spherical_metrics as sm
 
 def calculate_localisation_error(df,*grouping_vars):
     '''
