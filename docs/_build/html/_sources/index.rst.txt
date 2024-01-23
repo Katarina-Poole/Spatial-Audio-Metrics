@@ -3,15 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Spatial Audio Metrics's documentation!
+Documentation for Spatial Audio Metrics (SAM)
 =================================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   install
+   support
    modules
-
+   license
 
 Indices and tables
 ==================

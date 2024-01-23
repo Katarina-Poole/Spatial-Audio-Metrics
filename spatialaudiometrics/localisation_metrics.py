@@ -1,32 +1,18 @@
 '''
 localisation_metrics.py. Functions that calculate perceptual metrics for localisation experiments
-
-Copyright (C) 2024  Katarina C. Poole
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 import numpy as np
 import pandas as pd
 import scipy.stats as sts
-import spherical_metrics as sm
+from spatialaudiometrics import spherical_metrics as sm
 
-def calculate_localisation_error(df,*grouping_vars):
+def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
     '''
-    Calculates localisation precision and accuracy (lat and pol) like in AMT (currently only in the interaural domain for now)
+    Calculates localisation precision and accuracy (lat and pol) like in AMT toolbox (currently only in the interaural domain for now)
     and the middle brooks quadrant error and confusion classification percentages
+
     :param df: data frame thats been preprocessed by load_behav_data.preprocess_localisation_data
-    :grouping_vars: columns that you want to group the table when calculating the mean (e.g. 'subjectID','HRTFidx')
+    :param grouping_vars: columns that you want to group the table when calculating the mean (e.g. 'subjectID','HRTFidx')
     '''
     grouping_list = list()
     for i,group_name in enumerate(grouping_vars):
@@ -72,9 +58,11 @@ def calculate_localisation_error(df,*grouping_vars):
         outdf = pd.concat([outdf,temp])
     return outdf
 
-def calculate_quadrant_error(df):
+def calculate_quadrant_error(df: pd.DataFrame):
     '''
-    Calculates the middlebrooks QE
+    Calculates the middlebrooks quadrant error like that in the AMT toolbox
+
+    :param df: Pandas data frame with the columns: lat_target, lat_response, pol_target, pol_response which has the polar and lateral coordinates for behavioural responses and auditory targets
     '''
     # Only want to look at when the response was responding in the front or back 60 degree cone
     curr_df         = df.loc[(np.abs(df.lat_response) <= 30)]
@@ -88,23 +76,27 @@ def calculate_quadrant_error(df):
 
     return querr, confusions,responses_within_lateral_range
 
-def polar_error_weight(df):
+def polar_error_weight(df: pd.DataFrame):
     '''
-    Calculates the weight for the polar error 
+    Calculates the weight for the polar error such that lateral targets that are at -90 and 90 degrees have a low weight due to polar compression
+
+    :param df: Pandas dataframe with the column lat_target (lateral target)
     '''
     w = 0.5*np.cos(2*np.deg2rad(df.lat_target)) + 0.5
     return w
 
 def classify_confusion(row):
     '''
-    Classifies whether the response is a:
-    - Precision error (within 45degrees around target)
-    - Front-back error (within 45 degrees of the opposite hemifield of the target)
-    - In-cone error
-    - Off-cone error
-    - Combined - need to do this still!
+    Classifys perceptual confusions
 
-    :param row: One row of the dataframe
+    | Classifies whether the response is a:
+    | - Precision error (within 45degrees around target)
+    | - Front-back error (within 45 degrees of the opposite hemifield of the target)
+    | - In-cone error
+    | - Off-cone error
+    | - Combined - need to do this still!
+
+    :param row: One row of a pandas dataframe with the columns 'azi_target, ele_target, azi_response, ele_response, lat_response, lat_target, pol_response and pol_target
     '''
     error = sm.great_circle_error(row.azi_target,row.ele_target,row.azi_response,row.ele_response)
     if error <= 45:

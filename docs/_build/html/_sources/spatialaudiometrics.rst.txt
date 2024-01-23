@@ -7,7 +7,7 @@ Submodules
 spatialaudiometrics.load\_example\_data module
 ----------------------------------------------
 
-.. automodule:: spatialaudiometrics.load_example_data
+.. automodule:: spatialaudiometrics.load_data
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,6 +36,22 @@ spatialaudiometrics.spherical\_metrics module
    :undoc-members:
    :show-inheritance:
 
+spatialaudiometrics.statistics module
+---------------------------------------------
+
+.. automodule:: spatialaudiometrics.statistics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spatialaudiometrics.visualisation module
+---------------------------------------------
+
+.. automodule:: spatialaudiometrics.visualisation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   
 Module contents
 ---------------
 

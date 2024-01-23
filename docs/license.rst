@@ -1,5 +1,5 @@
-"""
-load_example_data.py. Functions that loads in example data
+License
+=================================================
 
 Copyright (C) 2024  Katarina C. Poole
 
@@ -15,14 +15,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""
-
-from importlib import resources
-import pandas as pd
-
-def load_data():
-    """Loads in example data
-    """
-    with resources.path("spatialaudiometrics","example_data_1.csv") as df:
-        return pd.read_csv(df)
-    print(df)
