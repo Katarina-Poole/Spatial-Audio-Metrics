@@ -1,0 +1,14 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.cfg
+spatial_audio_metrics.egg-info/PKG-INFO
+spatial_audio_metrics.egg-info/SOURCES.txt
+spatial_audio_metrics.egg-info/dependency_links.txt
+spatial_audio_metrics.egg-info/top_level.txt
+spatialaudiometrics/__init__.py
+spatialaudiometrics/example_data_1.csv
+spatialaudiometrics/load_example_data.py
+spatialaudiometrics/localisation_metrics.py
+spatialaudiometrics/spherical_metrics.py
