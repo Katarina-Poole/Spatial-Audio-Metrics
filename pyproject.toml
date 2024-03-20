@@ -4,3 +4,43 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "spatialaudiometrics"
+version = "0.0.1"
+
+dependencies = [
+"certifi>=2024.2.2",
+"cftime>=1.6.3",
+"contourpy>=1.2.0",
+"cycler>=0.12.1",
+"fonttools>=4.50.0",
+"kiwisolver>=1.4.5",
+"matplotlib>=3.8.3",
+"netCDF4>=1.6.5",
+"numpy>=1.26.4",
+"packaging>=24.0",
+"pandas>=2.2.1",
+"patsy>=0.5.6",
+"pillow>=10.2.0",
+"pyparsing>=3.1.2",
+"pysofaconventions>=0.1.5",
+"python-dateutil>=2.9.0.post0",
+"pytz>=2024.1",
+"scikit-posthocs>=0.9.0",
+"scipy>=1.12.0",
+"seaborn>=0.13.2",
+"six>=1.16.0",
+"statsmodels>=0.14.1",
+"tzdata>=2024.1"
+]
+
+authors = [{name = "Katarina C. Poole", email = "katarina.poole@imperial.ac.uk"}]
+maintainers = [{name = "Katarina C. Poole", email = "katarina.poole@imperial.ac.uk"}]
+description = "For calculating spatial audio metrics"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["spatial","audio","localisation","perception","psychoacoustic","psychophysics","hrtf","hrtfs"]
+
+[project.urls]
+url = "https://github.com/Katarina-Poole/Spatial-Audio-Metrics"

@@ -6,7 +6,7 @@ The demo folder contains scripts showing you how to use the package
 
 # To test the package works locally
 1. cd to repo
-2. pip install .
+2. pip install -e .    (the e means edit so you can edit the source package as is without having to reinstall)
 3. Test out functions (package is called)
 
 # To build the package and upload to pip (when ready to release 0.0.1). Make sure the command prompt is in the package directory

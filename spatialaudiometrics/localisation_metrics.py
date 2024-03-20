@@ -4,7 +4,7 @@ localisation_metrics.py. Functions that calculate perceptual metrics for localis
 import numpy as np
 import pandas as pd
 import scipy.stats as sts
-from spatialaudiometrics import spherical_metrics as sm
+from spatialaudiometrics import angular_metrics as am
 
 def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
     '''
@@ -66,9 +66,8 @@ def calculate_quadrant_error(df: pd.DataFrame):
     '''
     # Only want to look at when the response was responding in the front or back 60 degree cone
     curr_df         = df.loc[(np.abs(df.lat_response) <= 30)]
-    #curr_df         = df.loc[(abs(df.lat_target) <= 30)]
 
-    polar_error     = np.abs((curr_df.pol_response - curr_df.pol_target).apply(sm.wrap_angle))
+    polar_error     = np.abs((curr_df.pol_response - curr_df.pol_target).apply(am.wrap_angle))
     polar_error_idx = polar_error <= 90
     confusions      = sum(polar_error_idx)
     responses_within_lateral_range = len(curr_df)
@@ -98,11 +97,11 @@ def classify_confusion(row):
 
     :param row: One row of a pandas dataframe with the columns 'azi_target, ele_target, azi_response, ele_response, lat_response, lat_target, pol_response and pol_target
     '''
-    error = sm.great_circle_error(row.azi_target,row.ele_target,row.azi_response,row.ele_response)
+    error = am.great_circle_error(row.azi_target,row.ele_target,row.azi_response,row.ele_response)
     if error <= 45:
         classification = 'precision'
     else: # Check if its front back so get the opposite side azimuth angle
-        error = sm.great_circle_error(sm.wrap_angle(-(180+row.azi_target)),row.ele_target,row.azi_response,row.ele_response) 
+        error = am.great_circle_error(am.wrap_angle(-(180+row.azi_target)),row.ele_target,row.azi_response,row.ele_response) 
         if error <= 45:
             classification = 'front-back'
         elif np.abs(row.lat_response - row.lat_target) <= 45:

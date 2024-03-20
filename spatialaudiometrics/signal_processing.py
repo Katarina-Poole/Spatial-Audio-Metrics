@@ -1,28 +1,38 @@
 '''
-signal_processing.py. Functions that perform signal processing
+hrtf_metrics.py. Functions that calculate metrics to numerically analyse differences between hrtfs
 '''
-
 import numpy as np
+from scipy.fft import fft, fftfreq
 
-def calculate_lsd(tf1:np.array, tf2:np.array):
+def mag2db(x):
     '''
-    Calculates the log spectral distortion between two transfer functions tf1 and tf2
-    returns a list of values which is the lsd for each frequency
+    Convert values from magnitude to dB using 20log10
+    :param x: float value
+    :return y: float value (dB)
+    '''
+    y = 20*np.log10(x)
+    return y
 
-    :param tf1: First transfer function 
-    :param tf2: Second transfer function to compare against the first
+def calculate_spectrum(x:np.array,fs,db_flag = 1):
     '''
-    lsd = 20*np.log10(tf1/tf2)
-    return lsd
-
-def calculate_lsd_across_freqs(tf1:np.array,tf2:np.array):
+    Converts a time domain signal (such as an impulse reponse) to the frequency domain (such as a transfer function). The default is to return the output in dB
+    :param x: 1D numpy array
+    :param fs: sample rate of the signal (e.g. 48000)
+    :param db_flag: if you want the spectra in dB rather than magnitude
+    :return spec: spectrum (e.g. transfer function)
+    :return freqs: the frequencies for each value in the spectrum
+    :return phase: phase
     '''
-    Calculates the log spectral distortion across frequencies between two transfer functions tf1 and tf2
-    returns a list of values which is the lsd for each frequency
-
-    :param tf1: First transfer function 
-    :param tf2: Second transfer function to compare against the first
-    '''
-    lsd = calculate_lsd(tf1,tf2)
-    lsd = np.sqrt(np.mean(lsd**2))
-    return lsd 
+    n       = len(x) # samples
+    t       = 1.0/fs # time in seconds between samples
+    freqs   = fftfreq(n,t)[:n//2]
+    y       = fft(x)
+    amp     = np.abs(y[0:n//2])
+    phase   = np.imag(y[0:n//2])
+    db      = mag2db(amp)
+    if db_flag == 1:
+        spec = db
+    else:
+        spec = amp
+    return spec, freqs, phase
+    
