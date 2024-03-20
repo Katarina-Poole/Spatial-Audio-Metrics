@@ -1,7 +1,7 @@
 '''
 spherical_metrics.py. Functions to calculate spherical metrics
-
 '''
+
 from math import degrees, acos
 import numpy as np
 

@@ -90,7 +90,7 @@ def classify_confusion(row):
     Classifys perceptual confusions
 
     | Classifies whether the response is a:
-    | - Precision error (within 45degrees around target)
+    | - Precision error (within 45 degrees around target)
     | - Front-back error (within 45 degrees of the opposite hemifield of the target)
     | - In-cone error
     | - Off-cone error

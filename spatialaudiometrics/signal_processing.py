@@ -1,5 +1,5 @@
 '''
-signal_processing.py. Functions that loads in example data
+signal_processing.py. Functions that perform signal processing
 '''
 
 import numpy as np

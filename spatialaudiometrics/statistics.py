@@ -132,7 +132,7 @@ def run_friedman_test(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list):
         in_text = ['was'] + [dep_col]
         # Run pairwise comparisons using wilcoxon signed rank test
         wilcoxon_stats = ph.posthoc_wilcoxon(df,dep_col,ind_col[0],p_adjust= 'holm')
-        # Want to conver the array into a table for easy reading
+        # Want to convert the array into a table for easy reading
         wilcoxon_table = pd.DataFrame()
         for g1,group1 in enumerate(fried_groups):
             for g2, group2 in enumerate(fried_groups):

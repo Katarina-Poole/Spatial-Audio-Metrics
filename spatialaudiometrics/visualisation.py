@@ -103,7 +103,8 @@ def plot_sig_bar(axes,p_val):
             axes.annotate('*',[x_coord,y_coord*1.001],fontsize=FontSize.panel_fs,ha='center')
 
 def plot_sig_bars_pairwise(axes,stats):
-    '''Plots the significance bars of pairwise comparisons
+    '''
+    Plots the significance bars of pairwise comparisons
 
     :param axes: the axes you want to plot hte significance bars on
     :param stats: The pairwise comparison table from the statistics module
