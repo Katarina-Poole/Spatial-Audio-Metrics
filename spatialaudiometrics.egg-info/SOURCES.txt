@@ -5,6 +5,8 @@ pyproject.toml
 spatialaudiometrics/__init__.py
 spatialaudiometrics/angular_metrics.py
 spatialaudiometrics/example_data_1.csv
+spatialaudiometrics/example_sofa_1.sofa
+spatialaudiometrics/example_sofa_2.sofa
 spatialaudiometrics/hrtf_metrics.py
 spatialaudiometrics/lap_challenge.py
 spatialaudiometrics/load_data.py

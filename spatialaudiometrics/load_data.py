@@ -1,8 +1,7 @@
 '''
-load_example_data.py. Functions that loads in example data
+Load data module
 '''
 import sys
-from dataclasses import dataclass
 from importlib import resources
 from pysofaconventions import SOFAFile
 import numpy as np

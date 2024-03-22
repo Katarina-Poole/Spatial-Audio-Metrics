@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: spatialaudiometrics
-Version: 0.0.1
+Version: 0.0.2
 Summary: For calculating spatial audio metrics
 Author-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
 Maintainer-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
@@ -707,13 +707,15 @@ Requires-Dist: statsmodels>=0.14.1
 Requires-Dist: tzdata>=2024.1
 
 # Spatial-Audio-Metrics
-Spatial Audio Metrics (SAM) is a toolbox to analyse spatial audio and spatial audio perceptual experiments
+Spatial Audio Metrics (SAM) is a Python toolbox to analyse spatial audio and spatial audio perceptual experiments.
+It is still underdevelopment so more functionality will be added
 
+# Documentation
+Detailed coumentation of the Spatial Audio Metrics can be found here: <https://spatial-audio-metrics.readthedocs.io>
 
-Look at demo.py to see how to use the package
-
-pip install spatialaudiometrics
-
+# Installation
+You can install the package using pip:
+'pip install spatialaudiometrics'
 
 # License
 Copyright (C) 2024  Katarina C. Poole

@@ -1,10 +1,7 @@
-spatialaudiometrics package
+API
 ===========================
 
-Submodules
-----------
-
-spatialaudiometrics.load\_example\_data module
+spatialaudiometrics.load\_data module
 ----------------------------------------------
 
 .. automodule:: spatialaudiometrics.load_data
