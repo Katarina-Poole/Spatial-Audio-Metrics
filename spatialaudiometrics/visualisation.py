@@ -133,7 +133,8 @@ def plot_sig_bars_pairwise(axes,stats):
         print('No pairwise comparisons to plot')
 
 def plot_error_bar(axes,df,x_name,y_name,sample_name):
-    '''Plots errors bars using standard error and mean
+    '''
+    Plots errors bars using standard error and mean
 
     :param axes: The axes you want to plot in
     :param df: The dataframe you want to use for the error bar

@@ -52,7 +52,10 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">spatialaudiometrics package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spatialaudiometrics.load_data">spatialaudiometrics.load_example_data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.load_data.HRTF"><code class="docutils literal notranslate"><span class="pre">HRTF</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.load_data.load_example_behavioural_data"><code class="docutils literal notranslate"><span class="pre">load_example_behavioural_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.load_data.load_example_sofa_files"><code class="docutils literal notranslate"><span class="pre">load_example_sofa_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.load_data.match_hrtf_locations"><code class="docutils literal notranslate"><span class="pre">match_hrtf_locations()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.load_data.preprocess_behavioural_data"><code class="docutils literal notranslate"><span class="pre">preprocess_behavioural_data()</span></code></a></li>
 </ul>
 </li>
@@ -64,8 +67,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spatialaudiometrics.signal_processing">spatialaudiometrics.signal_processing module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.signal_processing.calculate_lsd"><code class="docutils literal notranslate"><span class="pre">calculate_lsd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.signal_processing.calculate_lsd_across_freqs"><code class="docutils literal notranslate"><span class="pre">calculate_lsd_across_freqs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.signal_processing.calculate_spectrum"><code class="docutils literal notranslate"><span class="pre">calculate_spectrum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#spatialaudiometrics.signal_processing.mag2db"><code class="docutils literal notranslate"><span class="pre">mag2db()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-spatialaudiometrics.spherical_metrics">spatialaudiometrics.spherical_metrics module</a><ul>
@@ -137,10 +140,37 @@
 <section id="module-spatialaudiometrics.load_data">
 <span id="spatialaudiometrics-load-example-data-module"></span><h2>spatialaudiometrics.load_example_data module<a class="headerlink" href="#module-spatialaudiometrics.load_data" title="Link to this heading"></a></h2>
 <p>load_example_data.py. Functions that loads in example data</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="spatialaudiometrics.load_data.HRTF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.load_data.</span></span><span class="sig-name descname"><span class="pre">HRTF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sofa_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.load_data.HRTF" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A general structure for loading all info needed for an HRTF since we can’t edit the sofa files with pysofaconventions easily</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="spatialaudiometrics.load_data.load_example_behavioural_data">
 <span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.load_data.</span></span><span class="sig-name descname"><span class="pre">load_example_behavioural_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.load_data.load_example_behavioural_data" title="Link to this definition"></a></dt>
 <dd><p>Loads in example data from a spatial audio experiment (example_data_1.csv)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spatialaudiometrics.load_data.load_example_sofa_files">
+<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.load_data.</span></span><span class="sig-name descname"><span class="pre">load_example_sofa_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.load_data.load_example_sofa_files" title="Link to this definition"></a></dt>
+<dd><p>Loads in two example sofa files from the SONICOM dataset and returns custom hrtf objects</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="spatialaudiometrics.load_data.match_hrtf_locations">
+<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.load_data.</span></span><span class="sig-name descname"><span class="pre">match_hrtf_locations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hrtf1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrtf2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.load_data.match_hrtf_locations" title="Link to this definition"></a></dt>
+<dd><p>Finds where the locations of hrtf 2 match hrtf 1 and then reorders the HRIRs such that they match. Currently the distance dimension is ignored and only azimuth and elevation are taken into account</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hrtf1</strong> – custom hrtf object</p></li>
+<li><p><strong>hrtf2</strong> – custom hrtf in which the hrirs will be reordered to match the locations of sofa1</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -198,7 +228,7 @@ and the middle brooks quadrant error and confusion classification percentages</p
 <dd><p>Classifys perceptual confusions</p>
 <div class="line-block">
 <div class="line">Classifies whether the response is a:</div>
-<div class="line">- Precision error (within 45degrees around target)</div>
+<div class="line">- Precision error (within 45 degrees around target)</div>
 <div class="line">- Front-back error (within 45 degrees of the opposite hemifield of the target)</div>
 <div class="line">- In-cone error</div>
 <div class="line">- Off-cone error</div>
@@ -225,33 +255,41 @@ and the middle brooks quadrant error and confusion classification percentages</p
 </section>
 <section id="module-spatialaudiometrics.signal_processing">
 <span id="spatialaudiometrics-signal-processing-module"></span><h2>spatialaudiometrics.signal_processing module<a class="headerlink" href="#module-spatialaudiometrics.signal_processing" title="Link to this heading"></a></h2>
-<p>signal_processing.py. Functions that loads in example data</p>
+<p>signal_processing.py. Functions that calculate metrics to numerically analyse differences between hrtfs</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="spatialaudiometrics.signal_processing.calculate_lsd">
-<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.signal_processing.</span></span><span class="sig-name descname"><span class="pre">calculate_lsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tf1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.signal_processing.calculate_lsd" title="Link to this definition"></a></dt>
-<dd><p>Calculates the log spectral distortion between two transfer functions tf1 and tf2
-returns a list of values which is the lsd for each frequency</p>
+<dt class="sig sig-object py" id="spatialaudiometrics.signal_processing.calculate_spectrum">
+<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.signal_processing.</span></span><span class="sig-name descname"><span class="pre">calculate_spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.signal_processing.calculate_spectrum" title="Link to this definition"></a></dt>
+<dd><p>Converts a time domain signal (such as an impulse reponse) to the frequency domain (such as a transfer function). The default is to return the output in dB</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tf1</strong> – First transfer function</p></li>
-<li><p><strong>tf2</strong> – Second transfer function to compare against the first</p></li>
+<li><p><strong>x</strong> – 1D numpy array</p></li>
+<li><p><strong>fs</strong> – sample rate of the signal (e.g. 48000)</p></li>
+<li><p><strong>db_flag</strong> – if you want the spectra in dB rather than magnitude</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns spec<span class="colon">:</span></dt>
+<dd class="field-even"><p>spectrum (e.g. transfer function)</p>
+</dd>
+<dt class="field-odd">Returns freqs<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the frequencies for each value in the spectrum</p>
+</dd>
+<dt class="field-even">Returns phase<span class="colon">:</span></dt>
+<dd class="field-even"><p>phase</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="spatialaudiometrics.signal_processing.calculate_lsd_across_freqs">
-<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.signal_processing.</span></span><span class="sig-name descname"><span class="pre">calculate_lsd_across_freqs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tf1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.signal_processing.calculate_lsd_across_freqs" title="Link to this definition"></a></dt>
-<dd><p>Calculates the log spectral distortion across frequencies between two transfer functions tf1 and tf2
-returns a list of values which is the lsd for each frequency</p>
+<dt class="sig sig-object py" id="spatialaudiometrics.signal_processing.mag2db">
+<span class="sig-prename descclassname"><span class="pre">spatialaudiometrics.signal_processing.</span></span><span class="sig-name descname"><span class="pre">mag2db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#spatialaudiometrics.signal_processing.mag2db" title="Link to this definition"></a></dt>
+<dd><p>Convert values from magnitude to dB using 20log10</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tf1</strong> – First transfer function</p></li>
-<li><p><strong>tf2</strong> – Second transfer function to compare against the first</p></li>
-</ul>
+<dd class="field-odd"><p><strong>x</strong> – float value</p>
+</dd>
+<dt class="field-even">Returns y<span class="colon">:</span></dt>
+<dd class="field-even"><p>float value (dB)</p>
 </dd>
 </dl>
 </dd></dl>

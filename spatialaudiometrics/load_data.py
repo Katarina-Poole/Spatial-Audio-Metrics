@@ -17,6 +17,7 @@ class HRTF:
     def __init__(self,sofa_path):
         '''
         Loads in the data from the sofa path into the custom class
+
         :param sofa: sofa object from SOFAFile(sofa_path,'r')
         '''
         sofa            = SOFAFile(sofa_path,'r')
@@ -46,6 +47,7 @@ def load_example_sofa_files():
 def match_hrtf_locations(hrtf1,hrtf2):
     '''
     Finds where the locations of hrtf 2 match hrtf 1 and then reorders the HRIRs such that they match. Currently the distance dimension is ignored and only azimuth and elevation are taken into account
+    
     :param hrtf1: custom hrtf object 
     :param hrtf2: custom hrtf in which the hrirs will be reordered to match the locations of sofa1
     '''
@@ -78,7 +80,6 @@ def preprocess_behavioural_data(df:pd.DataFrame):
 
     :param df: Pandas dataframe (every row should be a trial and should include the columns 'ele_target', 'ele_response', 'azi_target', 'azi_response')
     :return df: Returns the dataframe with added columns and new coordinates under the assumption that -90 = left, 90 = right in azi, and -90 = down and 90 = top in ele
-
     '''
 
     # Wrap azi and ele angles between -180 and 180
