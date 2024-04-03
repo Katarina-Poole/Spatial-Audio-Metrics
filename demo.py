@@ -1,9 +1,14 @@
 from spatialaudiometrics import load_data as ld
 from spatialaudiometrics import hrtf_metrics as hf
 from spatialaudiometrics import lap_challenge as lap
+from spatialaudiometrics import visualisation as vis
 
 # Load in some example HRTFs
 hrtf1,hrtf2 = ld.load_example_sofa_files()
+
+
+# Lets try some visualisation
+vis.plot_hrtf_overview(hrtf1)
 
 # If you want to load in your own you can use
 #hrtf1 = ld.HRTF()

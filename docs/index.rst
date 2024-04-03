@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-[Spatial Audio Metrics]: Available Documentation
+Spatial Audio Metrics: Available Documentation
 =================================================
 
 .. toctree::
@@ -12,5 +12,6 @@
    
    install
    support
-   modules
+   api
+   versionhistory
    license

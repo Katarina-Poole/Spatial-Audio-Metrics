@@ -4,6 +4,9 @@ Functions for visualising data
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+from spatialaudiometrics import hrtf_metrics as hf
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from matplotlib.cm import ScalarMappable
 
 class FigSize:
     '''
@@ -208,5 +211,46 @@ def show():
     '''
     To show the plots
     '''
-    plt.show()
-    
+    plt.show(block = False)
+
+def plot_hrtf_overview(hrtf,az = [0,90,180,270]):
+    '''
+    A function that plots a few features of the HRTF
+    :param hrtf: The hrtf object as loaded in by hrtf = load_data.HRTF(sofa_path)
+    :param az: The azimuth locations in which the transfer functions will be plotted. Default is ahead, left, behind and right
+    '''
+    tfs,freqs,phase = hf.hrir2hrtf(hrtf.hrir,hrtf.fs)
+    freq_idx        = np.where((freqs >= 20) & (freqs <=20000))[0]
+    freqs           = freqs[freq_idx]
+    # Get the color map limits
+    vmin            = np.floor(np.min(tfs[np.in1d(hrtf.locs[:,0],az),:,:]))
+    vmax            = np.ceil(np.max(tfs[np.in1d(hrtf.locs[:,0],az),:,:]))
+
+    fig_titles      = ['Left ear',' Right ear']
+    for e in range(2):
+        fig,gs      = create_fig(fig_size=(12,8))
+        subplots    = [gs[0:5,1:5],gs[0:5,7:11],gs[6:11,1:5],gs[6:11,7:11]]
+
+        for i,curr_az in enumerate(az):
+            axes            = fig.add_subplot(subplots[i])
+            az_loc_idx      = np.where(hrtf.locs[:,0] == curr_az)[0]
+            el_angles       = np.squeeze(hrtf.locs[az_loc_idx,1])
+            sort_idx        = np.argsort(el_angles)
+            el_angles       = el_angles[sort_idx]
+            curr_tf         = np.squeeze(tfs[az_loc_idx,e,:])
+            curr_tf         = curr_tf[sort_idx,:]
+            c               = axes.contourf(curr_tf[:,freq_idx],levels = 100,cmap = 'magma',vmin = vmin, vmax = vmax)
+            cax             = inset_axes(axes,width="2.5%",height="100%",bbox_transform=axes.transAxes,bbox_to_anchor=(0.025, 0.05, 1.05, 0.95),loc= 1)
+            
+            plt.colorbar(c,cax = cax)
+            axes.set_ylabel('Elevation (°)')
+            axes.set_yticks(range(len(el_angles)))
+            axes.set_yticklabels(el_angles)
+            axes.set_xlabel('Frequency (kHz)')
+            axes.set_xticks(np.arange(0,len(freqs),15))
+            axes.set_xticklabels(np.round(freqs[np.arange(0,len(freqs),15)]/1000,2))
+            axes.set_xlim(freq_idx[0],freq_idx[-1])
+            cax.set_ylabel('dB')
+            axes.set_title('Azimuth: ' + str(curr_az) + '°')
+            fig.suptitle(fig_titles[e])
+    show()

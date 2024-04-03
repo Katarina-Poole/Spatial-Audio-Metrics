@@ -21,7 +21,7 @@ class HRTF:
         '''
         sofa            = SOFAFile(sofa_path,'r')
         self.sofa_path  = sofa_path
-        self.locs       = np.round(sofa.getVariableValue('SourcePosition'),2) # Round to avoid any bizarre precision errors
+        self.locs       = np.round(sofa.getVariableValue('SourcePosition').data,2) # Round to avoid any bizarre precision errors
         self.hrir       = sofa.getDataIR().data
         self.fs         = sofa.getSamplingRate().data[0]
 
