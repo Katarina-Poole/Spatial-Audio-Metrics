@@ -31,6 +31,7 @@ scipy==1.12.0
 seaborn==0.13.2
 six==1.16.0
 snowballstemmer==2.2.0
+-e git+https://github.com/Katarina-Poole/Spatial-Audio-Metrics.git@389dcfff916e37c2d04ab881a4ba77177463934f#egg=spatialaudiometrics
 Sphinx==7.2.6
 sphinx-rtd-theme==2.0.0
 sphinxcontrib-applehelp==1.0.8
