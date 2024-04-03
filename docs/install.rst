@@ -1,6 +1,10 @@
 Installation
 =================================================
 
-pip install spatialaudiometrics
+Installation should be straight forward using Python's 'pip'
 
-Then to get started...
+.. code-block:: python
+    
+    pip install spatialaudiometrics
+
+Then to get started check out the Tutorial page in the sidebar. 

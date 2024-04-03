@@ -9,6 +9,7 @@ from spatialaudiometrics import signal_processing as sp
 def hrir2hrtf(hrir:np.array,fs,db_flag = 1):
     '''
     Converts all hrirs in a 3D array (location x ear x sample) into hrtfs. 
+    
     :param hrir: HRIRs in a 3D array (location x ear x sample)
     :param fs: sample rate
     :param db_flag: if you want the spectra in dB rather than magnitude
@@ -42,6 +43,7 @@ def calculate_lsd(tf1:np.array, tf2:np.array):
 def calculate_lsd_across_freqs(tf1:np.array,tf2:np.array):
     '''
     Calculates the log spectral distortion across frequencies between two transfer functions tf1 and tf2
+    
     :param tf1: First transfer function 
     :param tf2: Second transfer function to compare against the first
     :return lsd: Return a value that is the RMS across frequencies
@@ -53,6 +55,7 @@ def calculate_lsd_across_freqs(tf1:np.array,tf2:np.array):
 def calculate_lsd_across_locations(hrir1,hrir2,fs):
     '''
     Calculates the log spectral distortion across locations between two location matched hrirs only between 20 and 20000Hz
+    
     :param hrir1: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :param hrir2: 3d array of another impulse response at each location x ear. Shape should be locations x ears x samples
     :param fs: sample rate
@@ -74,20 +77,20 @@ def calculate_lsd_across_locations(hrir1,hrir2,fs):
         for e,ear in enumerate(loc):
             lsd_mat[l,e] = calculate_lsd_across_freqs(hrtfs1[l,e,:],hrtfs2[l,e,:])
     
-    lsd = np.mean(lsd_mat)  
+    lsd = np.mean(lsd_mat)
     return lsd,lsd_mat
 
-    
 def itd_estimator_maxiacce(hrir,fs):
     '''
-    Calculates the ITD based on the MAXIACCe mode (transcribed from the itd_estimator in the AMTtoolbox 20/03/24)
+    Calculates the ITD based on the MAXIACCe mode (transcribed from the itd_estimator in the AMTtoolbox 20/03/24, based on Andreopoulou et al. 2017)
+    
     :param hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :return itd_s: ITD in seconds for each location
     :return itd_samps: ITD in samples for each location
     :return maxiacc: The max interaural cross correlation calculated 
     '''
-    itd_samps = list()
-    maxiacc      = list()
+    itd_samps   = list()
+    maxiacc     = list()
     for loc in hrir:
         # Take the maximum absolute value of the cross correlation between the two ears to get the maxiacc
         correlation     = sn.correlate(np.abs(sn.hilbert(loc[0,:])),np.abs(sn.hilbert(loc[1,:])))
@@ -101,6 +104,7 @@ def itd_estimator_maxiacce(hrir,fs):
 def ild_estimator_rms(hrir):
     '''
     Calculate the ILD by taking the rms of the impulse response at each ear and taking the difference
+    
     :paran hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :return ild: ILD in dB for each location
     '''
@@ -111,6 +115,7 @@ def ild_estimator_rms(hrir):
 def calculate_itd_difference(hrtf1,hrtf2):
     '''
     Calculates the absolute difference in itd values between two hrtfs
+    
     :param hrtf1: first hrtf (custom hrtf object)
     :param hrtf2: second hrtf (custom hrtf object)
     :return itd_diff: the average itd difference across locations in us 
@@ -123,6 +128,7 @@ def calculate_itd_difference(hrtf1,hrtf2):
 def calculate_ild_difference(hrtf1,hrtf2):
     '''
     Calculates the absolute difference in ild values between two hrtfs
+    
     :param hrtf1: first hrtf (custom hrtf object)
     :param hrtf2: second hrtf (custom hrtf object)
     :return ild_diff: the average ild difference across locations in dB 

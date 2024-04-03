@@ -1,6 +1,7 @@
 '''
 Load data module
 '''
+import os
 import sys
 from importlib import resources
 from pysofaconventions import SOFAFile
@@ -19,6 +20,9 @@ class HRTF:
 
         :param sofa: sofa object from SOFAFile(sofa_path,'r')
         '''
+        # Firstly check if each path exists
+        assert os.path.isfile(sofa_path) is True, 'Sofa file does not exist'
+        
         sofa            = SOFAFile(sofa_path,'r')
         self.sofa_path  = sofa_path
         self.locs       = np.round(sofa.getVariableValue('SourcePosition').data,2) # Round to avoid any bizarre precision errors
@@ -127,4 +131,3 @@ def preprocess_behavioural_data(df:pd.DataFrame):
     df['unsigned_polar_error']   = abs(df.signed_polar_error)
 
     return df
-

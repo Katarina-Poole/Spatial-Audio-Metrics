@@ -7,15 +7,21 @@ from spatialaudiometrics import hrtf_metrics as hf
 
 class Parameters:
     '''
-    Parameters derived from a dataset
+    Parameters derived from A. Hoggs dataset
     '''
-    itd_threshold = 32
-    ild_threshold = 4
-    lsd_threshold = 7
+    itd_threshold = 31.6
+    ild_threshold = 4.37
+    lsd_threshold = 7.36
     
-def calculate_lap_challenge_metrics(original_hrtf_path,upsampled_hrtf_path):
+def calculate_task_two_metrics(original_hrtf_path,upsampled_hrtf_path):
     '''
     Function that calculates all the metrics for the lab challenge
+    
+    :param original_hrtf_path: full path of the original sofa file
+    :param upsampled_hrtf_path: full path of the upsampled sofa file
+    :return metrics: a list of the itd difference, ild difference and lsd calculated metrics
+    :return threshold_bool: a list of the booleans saying whether the metric is below (True) or above (False) the LAP challenge thresholds
+    :return df: a pandas dataframe including the metrics, threshold_bool and thresholds themselves
     '''
     # Load in the sofa files
     hrtf1 = ld.HRTF(original_hrtf_path)
@@ -43,4 +49,3 @@ def calculate_lap_challenge_metrics(original_hrtf_path,upsampled_hrtf_path):
     print(df)
     
     return metrics,threshold_bool,df
-

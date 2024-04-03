@@ -25,10 +25,18 @@ spatialaudiometrics.signal\_processing module
    :undoc-members:
    :show-inheritance:
 
-spatialaudiometrics.spherical\_metrics module
+spatialaudiometrics.angular\_metrics module
 ---------------------------------------------
 
-.. automodule:: spatialaudiometrics.spherical_metrics
+.. automodule:: spatialaudiometrics.angular_metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+spatialaudiometrics.hrtf\_metrics module
+---------------------------------------------
+
+.. automodule:: spatialaudiometrics.hrtf_metrics
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,7 +56,15 @@ spatialaudiometrics.visualisation module
    :members:
    :undoc-members:
    :show-inheritance:
-   
+
+spatialaudiometrics.lap\_challenge module
+---------------------------------------------
+
+.. automodule:: spatialaudiometrics.lap_challenge
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

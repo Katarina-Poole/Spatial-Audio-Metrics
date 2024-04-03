@@ -11,6 +11,7 @@ Spatial Audio Metrics: Available Documentation
    :caption: Contents:
    
    install
+   tutorial
    support
    api
    versionhistory

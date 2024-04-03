@@ -1,5 +1,5 @@
 '''
-signal_processing.py. Functions that calculate metrics to numerically analyse differences between hrtfs
+signal_processing.py. Generic signal processing functions
 '''
 import numpy as np
 from scipy.fft import fft, fftfreq
@@ -12,6 +12,16 @@ def mag2db(x):
     :returns y: float value (dB)
     '''
     y = 20*np.log10(x)
+    return y
+
+def db2mag(x):
+    '''
+    Convert values from dB to magnitude
+    
+    :param x: float value (dB)
+    :returns y: float value 
+    '''
+    y = np.float_power(10,x/20)
     return y
 
 def calculate_spectrum(x:np.array,fs,db_flag = 1):
@@ -37,4 +47,3 @@ def calculate_spectrum(x:np.array,fs,db_flag = 1):
     else:
         spec = amp
     return spec, freqs, phase
-    

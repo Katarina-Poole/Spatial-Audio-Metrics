@@ -1,6 +1,7 @@
 '''
 Functions for visualising data
 '''
+import seaborn as sns
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -213,11 +214,12 @@ def show():
     '''
     plt.show(block = False)
 
-def plot_hrtf_overview(hrtf,az = [0,90,180,270]):
+def plot_tf_overview(hrtf,az = [0,90,180,270]):
     '''
-    A function that plots a few features of the HRTF
+    A function that displays the transfer function at multiple elevation locations and select azimuth locations (max four)
+    
     :param hrtf: The hrtf object as loaded in by hrtf = load_data.HRTF(sofa_path)
-    :param az: The azimuth locations in which the transfer functions will be plotted. Default is ahead, left, behind and right
+    :param az: The azimuth locations in which the transfer functions will be plotted (max four for nice plots). Default is ahead, left, behind and right
     '''
     tfs,freqs,phase = hf.hrir2hrtf(hrtf.hrir,hrtf.fs)
     freq_idx        = np.where((freqs >= 20) & (freqs <=20000))[0]
@@ -254,3 +256,72 @@ def plot_hrtf_overview(hrtf,az = [0,90,180,270]):
             axes.set_title('Azimuth: ' + str(curr_az) + '°')
             fig.suptitle(fig_titles[e])
     show()
+
+def plot_itd_overview(hrtf):
+    '''
+    Plots the ITD at elevation 0 and also the itd by each location
+    '''
+    itd_s,itd_samps,maxiacc = hf.itd_estimator_maxiacce(hrtf.hrir,hrtf.fs)
+    itd_us                  = itd_s * 1000000
+    idx                     = np.where(hrtf.locs[:,1] == 0)[0]
+    sort_idx                = np.argsort(hrtf.locs[idx,0])
+    idx                     = idx[sort_idx]
+    
+    fig,gs  = create_fig(fig_size=(16,6))
+    axes    = fig.add_subplot(gs[0:12,0:4], projection = 'polar')
+    axes.plot(np.deg2rad(hrtf.locs[idx,0]),np.abs(itd_us[idx]))
+    axes.set_theta_zero_location("N")
+    axes.set_rticks([200,400,600,800])
+    axes.set_title('Absolute ITD (µs)')
+
+    axes    = fig.add_subplot(gs[2:10,5:12])
+    huemax  = max(abs(itd_us))
+    sns.scatterplot(x = hrtf.locs[:,0], y = hrtf.locs[:,1], hue = itd_us, hue_norm=(-huemax,huemax), ax = axes, palette = "vlag")
+    axes.set_ylabel('Elevation (°)')
+    axes.set_xlabel('Azimuth (°); -> counterclockwise')
+    axes.set_title('ITD at all locations')
+    finish_axes(axes)
+    add_colourbar_on_side(-huemax,huemax,"vlag", axes, 'ITD (µs)')
+    show()
+    
+def plot_ild_overview(hrtf):
+    '''
+    Plots the ILD at elevation 0 and also the ild by each location
+    '''
+    ild                     = hf.ild_estimator_rms(hrtf.hrir)
+    idx                     = np.where(hrtf.locs[:,1] == 0)[0]
+    sort_idx                = np.argsort(hrtf.locs[idx,0])
+    idx                     = idx[sort_idx]
+    
+    fig,gs  = create_fig(fig_size=(16,6))
+    axes    = fig.add_subplot(gs[0:12,0:4], projection = 'polar')
+    axes.plot(np.deg2rad(hrtf.locs[idx,0]),np.abs(ild[idx]))
+    axes.set_theta_zero_location("N")
+    #axes.set_rticks([200,400,600,800])
+    axes.set_title('Absolute ILD (dB)')
+
+    axes    = fig.add_subplot(gs[2:10,5:12])
+    huemax  = max(abs(ild))
+    sns.scatterplot(x = hrtf.locs[:,0], y = hrtf.locs[:,1], hue = ild, hue_norm=(-huemax,huemax), ax = axes, palette = "vlag")
+    axes.set_ylabel('Elevation (°)')
+    axes.set_xlabel('Azimuth (°); -> counterclockwise')
+    axes.set_title('ILD at all locations')
+    finish_axes(axes)
+    add_colourbar_on_side(-huemax,huemax,"vlag", axes, 'ILD (dB)')
+    show()
+    
+def add_colourbar_on_side(hue_min,hue_max,colourmap,axes,axes_label):
+    '''
+    Adds a colourbar on the side of the plot
+    
+    :param hue_min: the minimum hue value used
+    :param hu_max: the maximum hie value used
+    :param colourmap: the colourmap used
+    :param axes: the axes you want to generate it on the side of
+    :param axes_label: the label you want to attach to the colourbar     
+    '''
+    norm    = plt.Normalize(hue_min,hue_max)
+    sm      = plt.cm.ScalarMappable(cmap = colourmap, norm = norm)
+    sm.set_array([])
+    cbar    = axes.figure.colorbar(sm, ax = axes)
+    cbar.set_label(axes_label, rotation = 90)
