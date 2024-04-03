@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: spatialaudiometrics
-Version: 0.0.2
+Version: 0.0.3
 Summary: For calculating spatial audio metrics
 Author-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
 Maintainer-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
@@ -682,12 +682,21 @@ Project-URL: url, https://github.com/Katarina-Poole/Spatial-Audio-Metrics
 Keywords: spatial,audio,localisation,perception,psychoacoustic,psychophysics,hrtf,hrtfs
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: alabaster>=0.7.16
+Requires-Dist: Babel>=2.14.0
 Requires-Dist: certifi>=2024.2.2
 Requires-Dist: cftime>=1.6.3
+Requires-Dist: charset-normalizer>=3.3.2
+Requires-Dist: colorama>=0.4.6
 Requires-Dist: contourpy>=1.2.0
 Requires-Dist: cycler>=0.12.1
+Requires-Dist: docutils>=0.20.1
 Requires-Dist: fonttools>=4.50.0
+Requires-Dist: idna>=3.6
+Requires-Dist: imagesize>=1.4.1
+Requires-Dist: Jinja2>=3.1.3
 Requires-Dist: kiwisolver>=1.4.5
+Requires-Dist: MarkupSafe>=2.1.5
 Requires-Dist: matplotlib>=3.8.3
 Requires-Dist: netCDF4>=1.6.5
 Requires-Dist: numpy>=1.26.4
@@ -695,16 +704,20 @@ Requires-Dist: packaging>=24.0
 Requires-Dist: pandas>=2.2.1
 Requires-Dist: patsy>=0.5.6
 Requires-Dist: pillow>=10.2.0
+Requires-Dist: Pygments>=2.17.2
 Requires-Dist: pyparsing>=3.1.2
 Requires-Dist: pysofaconventions>=0.1.5
 Requires-Dist: python-dateutil>=2.9.0.post0
 Requires-Dist: pytz>=2024.1
+Requires-Dist: requests>=2.31.0
 Requires-Dist: scikit-posthocs>=0.9.0
 Requires-Dist: scipy>=1.12.0
 Requires-Dist: seaborn>=0.13.2
 Requires-Dist: six>=1.16.0
+Requires-Dist: snowballstemmer>=2.2.0
 Requires-Dist: statsmodels>=0.14.1
 Requires-Dist: tzdata>=2024.1
+Requires-Dist: urllib3>=2.2.1
 
 # Spatial-Audio-Metrics
 Spatial Audio Metrics (SAM) is a Python toolbox to analyse spatial audio and spatial audio perceptual experiments.
