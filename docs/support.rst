@@ -1,4 +1,4 @@
 Support
 =================================================
 
-Check out the github page for pull requests
+Check out the github page to submit any issues: https://github.com/Katarina-Poole/Spatial-Audio-Metrics

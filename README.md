@@ -3,7 +3,7 @@ Spatial Audio Metrics (SAM) is a Python toolbox to analyse spatial audio and spa
 It is still underdevelopment so more functionality will be added
 
 # Documentation
-Detailed coumentation of the Spatial Audio Metrics can be found here: <https://spatial-audio-metrics.readthedocs.io>
+Detailed documentation of the Spatial Audio Metrics can be found here: <https://spatial-audio-metrics.readthedocs.io>
 
 # Installation
 You can install the package using pip:

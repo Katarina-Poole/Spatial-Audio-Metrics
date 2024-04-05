@@ -10,8 +10,8 @@ class Parameters:
     Parameters derived from A. Hoggs dataset
     '''
     itd_threshold = 31.6
-    ild_threshold = 4.37
-    lsd_threshold = 7.36
+    ild_threshold = 4.4
+    lsd_threshold = 7.4
     
 def calculate_task_two_metrics(original_hrtf_path,upsampled_hrtf_path):
     '''

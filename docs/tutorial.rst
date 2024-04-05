@@ -43,7 +43,7 @@ For example we can calculate the ILD and ITD at each location as well as pull ou
 
 Visualising HRTF metrics
 -----------------------------------------
-The function visualisation can be used to easily visualise some basic HRTF metrics such as the ILD, ITD and spectra. The az argument in plot_hrtf_overview is used to select which azimuth locations you want to visualise the transfer functions (max four)
+The function visualisation can be used to easily visualise some basic HRTF metrics such as the ILD, ITD and spectra and the source locations. The az argument in plot_hrtf_overview is used to select which azimuth locations you want to visualise the transfer functions (max four)
 
 .. code-block:: python
 
@@ -52,7 +52,7 @@ The function visualisation can be used to easily visualise some basic HRTF metri
     vis.plot_itd_overview(hrtf1)
     vis.plot_ild_overview(hrtf1)
     vis.plot_tf_overview(hrtf1,az = [0,90,180,270])
-
+    vis.plot_source_locations(hrtf1.locs)
 
 Calculating differences between HRTFs
 -----------------------------------------

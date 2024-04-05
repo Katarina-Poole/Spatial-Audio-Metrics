@@ -6,8 +6,11 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 from spatialaudiometrics import hrtf_metrics as hf
+from spatialaudiometrics import angular_metrics as am
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.cm import ScalarMappable
+import matplotlib.animation as animation
+
 
 class FigSize:
     '''
@@ -283,7 +286,7 @@ def plot_itd_overview(hrtf):
     finish_axes(axes)
     add_colourbar_on_side(-huemax,huemax,"vlag", axes, 'ITD (µs)')
     show()
-    
+
 def plot_ild_overview(hrtf):
     '''
     Plots the ILD at elevation 0 and also the ild by each location
@@ -292,7 +295,7 @@ def plot_ild_overview(hrtf):
     idx                     = np.where(hrtf.locs[:,1] == 0)[0]
     sort_idx                = np.argsort(hrtf.locs[idx,0])
     idx                     = idx[sort_idx]
-    
+
     fig,gs  = create_fig(fig_size=(16,6))
     axes    = fig.add_subplot(gs[0:12,0:4], projection = 'polar')
     axes.plot(np.deg2rad(hrtf.locs[idx,0]),np.abs(ild[idx]))
@@ -309,7 +312,7 @@ def plot_ild_overview(hrtf):
     finish_axes(axes)
     add_colourbar_on_side(-huemax,huemax,"vlag", axes, 'ILD (dB)')
     show()
-    
+
 def add_colourbar_on_side(hue_min,hue_max,colourmap,axes,axes_label):
     '''
     Adds a colourbar on the side of the plot
@@ -325,3 +328,50 @@ def add_colourbar_on_side(hue_min,hue_max,colourmap,axes,axes_label):
     sm.set_array([])
     cbar    = axes.figure.colorbar(sm, ax = axes)
     cbar.set_label(axes_label, rotation = 90)
+
+def plot_source_locations(locs):
+    '''
+    Plots the source locations on a 3d plot.
+    
+    :param locations: numpy array where each row is a location, col 1 = azimuth, col 2 = elevation, col 3 = distance. Can easily just use hrtf.locs
+    '''
+    # Plot the locations used
+    fig,gs = create_fig(fig_size=(10,10))
+    x,y,z = am.polar2cartesian(locs[:,0], locs[:,1], locs[:,2])
+    dist = max(abs(z))
+    axes = fig.add_subplot(gs[0:12,0:12],projection='3d')
+    axes.scatter(x,y,z,s = 100)
+    axes.set_xlabel('X')
+    axes.set_ylabel('Y')
+    axes.set_title('Source locations')
+    axes.set_ylim(-dist,dist)
+    axes.set_xlim(-dist,dist)
+    axes.set_zlim(-dist,dist)
+    axes.set_aspect('equal')
+    # Annotate
+    x,y,z = am.polar2cartesian(0, 0, locs[0,2])
+    axes.text(x,y,z,  'Front', size=14, zorder=1, color = 'k')
+    x,y,z = am.polar2cartesian(90, 0, locs[0,2])
+    axes.text(x,y,z,  'Left', size=14, zorder=1, color = 'k')
+    x,y,z = am.polar2cartesian(270, 0, locs[0,2])
+    axes.text(x,y,z,  'Right', size=14, zorder=1, color = 'k')
+    finish_axes(axes)
+    show()
+    return fig, axes
+
+def create_source_location_gif(fig,axes,save_filename,dpi = 120):
+    '''
+    Creates a gif that rotates around the azimuth 
+    
+    :param fig: matplotlib figure handles
+    :param axes: matplotlib ax handle you want to rotate
+    :param save_filename: filename including path of where you want to save the file (include .gif)
+    :param dpi: dpi settings for animation, higher value = better quality but longer rendering time
+    '''
+    def rotate(angle):
+        axes.view_init(azim=angle)
+
+    print("Making animation...")
+    rot_animation = animation.FuncAnimation(fig, rotate, frames=np.arange(0, 362, 2), interval=100)
+    rot_animation.save(save_filename, dpi=dpi, writer='pillow')
+    print("Saved animation at: " + save_filename)
