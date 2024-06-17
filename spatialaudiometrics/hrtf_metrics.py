@@ -80,10 +80,10 @@ def calculate_lsd_across_locations(hrir1,hrir2,fs):
     lsd = np.mean(lsd_mat)
     return lsd,lsd_mat
 
-def itd_estimator_maxiacce(hrir,fs):
+def itd_estimator_maxiacce(hrir,fs, upper_cut_freq = 3000, filter_order = 10):
     '''
     Calculates the ITD based on the MAXIACCe mode (transcribed from the itd_estimator in the AMTtoolbox 20/03/24, based on Andreopoulou et al. 2017)
-    
+    Low passes the hrir
     :param hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :return itd_s: ITD in seconds for each location
     :return itd_samps: ITD in samples for each location
@@ -91,9 +91,15 @@ def itd_estimator_maxiacce(hrir,fs):
     '''
     itd_samps   = list()
     maxiacc     = list()
+    wn          = upper_cut_freq/(fs/2)
+    b,a         = sn.butter(filter_order,wn)
+
     for loc in hrir:
+        # Filter the hrir
+        loc_l = sn.lfilter(b,a,loc[0,:])
+        loc_r = sn.lfilter(b,a,loc[1,:])
         # Take the maximum absolute value of the cross correlation between the two ears to get the maxiacc
-        correlation     = sn.correlate(np.abs(sn.hilbert(loc[0,:])),np.abs(sn.hilbert(loc[1,:])))
+        correlation     = sn.correlate(np.abs(sn.hilbert(loc_l)),np.abs(sn.hilbert(loc_r)))
         maxiacc.append(np.max(np.abs(correlation)))
         idx_lag         = np.argmax(np.abs(correlation))
         itd_samps.append(idx_lag - np.shape(hrir)[2])

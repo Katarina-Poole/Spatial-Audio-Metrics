@@ -36,9 +36,9 @@ For example we can calculate the ILD and ITD at each location as well as pull ou
 
     from spatialaudiometrics import hrtf_metrics as hf
 
-    spectra, freqs, phase   = hrir2hrtf(hrtf1.hrir,hrtf1.fs)
-    ild                     = ild_estimator_rms(hrtf1.hrir)
-    itd_s,itd_samps,maxiacc = itd_estimator_maxiacce(hrtf1.hrir,fs)
+    spectra, freqs, phase   = hf.hrir2hrtf(hrtf1.hrir,hrtf1.fs)
+    ild                     = hf.ild_estimator_rms(hrtf1.hrir)
+    itd_s,itd_samps,maxiacc = hf.itd_estimator_maxiacce(hrtf1.hrir,hrtf1.fs)
 
 
 Visualising HRTF metrics
