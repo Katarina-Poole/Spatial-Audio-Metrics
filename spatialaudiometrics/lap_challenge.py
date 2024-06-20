@@ -9,7 +9,7 @@ class Parameters:
     '''
     Parameters derived from A. Hoggs dataset
     '''
-    itd_threshold = 62.5
+    itd_threshold = 100
     ild_threshold = 4.4
     lsd_threshold = 7.4
     
