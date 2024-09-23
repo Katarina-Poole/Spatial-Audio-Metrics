@@ -7,7 +7,4 @@ Version history
 - (05/04/2024) **0.0.4** Added in source location visualisation and updated LAP challenge thresholds
 - (05/06/2024) **0.0.6** Updated LAP challenge ITD threshold
 - (17/06/2024) **0.0.7** Bug fix - Updated itdestimator maxiacce to first low pass the hrir at 3000Hz with filter order of 10 as previously was just on broadband hrir
-- (?) **0.0.8** Bug fix - Added in loading of ITDs it ITDs are in the data delay field. Added in calculate_lsd_across_locations_per_frequency. 
-Added in standard error bar plots
-Added in plotting of hrirs and hrtfs of a single location 
-Added morlet wavelet decomposition and spectrogram plotting
+- (20/06/2024) **0.0.8** Updated LAP challenge ITD threshold
