@@ -57,3 +57,6 @@ keywords = ["spatial","audio","localisation","perception","psychoacoustic","psyc
 
 [project.urls]
 url = "https://github.com/Katarina-Poole/Spatial-Audio-Metrics"
+
+[tool.setuptools.packages.find]
+exclude = ["docs*", "images*"]

@@ -4,7 +4,9 @@ hrtf_metrics.py. Functions that calculate metrics to numerically analyse differe
 import sys
 import numpy as np
 import scipy.signal as sn
+import pandas as pd
 from spatialaudiometrics import signal_processing as sp
+from spatialaudiometrics import load_data as ld
 
 def hrir2hrtf(hrir:np.array,fs,db_flag = 1):
     '''
@@ -49,7 +51,7 @@ def calculate_lsd_across_freqs(tf1:np.array,tf2:np.array):
     :return lsd: Return a value that is the RMS across frequencies
     '''
     lsd = calculate_lsd(tf1,tf2)
-    lsd = np.sqrt(np.mean(lsd**2))
+    lsd = np.sqrt(np.mean(np.power(lsd,2)))
     return lsd 
 
 def calculate_lsd_across_locations(hrir1,hrir2,fs):
@@ -80,11 +82,41 @@ def calculate_lsd_across_locations(hrir1,hrir2,fs):
     lsd = np.mean(lsd_mat)
     return lsd,lsd_mat
 
+def calculate_lsd_across_locations_per_frequency(hrir1,hrir2,fs):
+    '''
+    Calculates the log spectral distortion across locations between two location matched hrirs only between 20 and 20000Hz and includes frequency information
+    
+    :param hrir1: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
+    :param hrir2: 3d array of another impulse response at each location x ear. Shape should be locations x ears x samples
+    :param fs: sample rate
+    :param lsd_mat: the lsd at each ear x location x frequency.
+    '''
+    if np.shape(hrir1)[2] != np.shape(hrir2)[2]:
+        sys.exit('Error: The lengths of the impulse responses do not match, consider windowing them to be the same length')
+    
+    hrtfs1, freqs, hrtfs_phase = hrir2hrtf(hrir1,fs,db_flag = 0)
+    hrtfs2, freqs, hrtfs_phase = hrir2hrtf(hrir2,fs,db_flag = 0)
+    
+    idx     = np.where((freqs >= 20) & (freqs <= 20000))[0] # This should be the same as the hrtfs should be matched in terms of length and they should have the same fs
+    hrtfs1  = hrtfs1[:,:,idx]
+    hrtfs2  = hrtfs2[:,:,idx]
+    freqs   = freqs[idx]
+    
+    lsd_mat = np.empty((np.shape(hrir1)[0],np.shape(hrir1)[1],len(freqs)))
+    for l,loc in enumerate(hrtfs1):
+        for e,ear in enumerate(loc):
+            lsd_mat[l,e,:] = calculate_lsd(hrtfs1[l,e,:],hrtfs2[l,e,:])
+    
+    return lsd_mat,freqs
+
 def itd_estimator_maxiacce(hrir,fs, upper_cut_freq = 3000, filter_order = 10):
     '''
     Calculates the ITD based on the MAXIACCe mode (transcribed from the itd_estimator in the AMTtoolbox 20/03/24, based on Andreopoulou et al. 2017)
     Low passes the hrir
     :param hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
+    :param fs: sample rate
+    :param upper_cut_freq: the upper cut off point for the low pass filter 
+    :param filter order: the filter order for the low pass filter
     :return itd_s: ITD in seconds for each location
     :return itd_samps: ITD in samples for each location
     :return maxiacc: The max interaural cross correlation calculated 
@@ -107,6 +139,39 @@ def itd_estimator_maxiacce(hrir,fs, upper_cut_freq = 3000, filter_order = 10):
     
     return itd_s,itd_samps,maxiacc
 
+def itd_estimator_threshold(hrir,fs,thresh_level = -10, upper_cut_freq = 3000, filter_order = 10):
+    '''
+    Calculates the ITD based on the threshold mode (transcribed from the itd_estimator in the AMTtoolbox 20/03/24, based on Andreopoulou et al. 2017)
+    with parameters used by the SONICOM dataset to remove the ITD. 
+    :param hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
+    :param fs: sample rate
+    :param upper_cut_freq: the upper cut off point for the low pass filter 
+    :param filter order: the filter order for the low pass filter
+    :return itd_s: ITD in seconds for each location
+    :return itd_samps: ITD in samples for each location
+    '''
+    itd_samps   = list()
+    itd_index   = np.zeros([np.shape(hrir)[0],np.shape(hrir)[1]])
+    wn          = upper_cut_freq/(fs/2)
+    b,a         = sn.butter(filter_order,wn)
+
+    for p,loc in enumerate(hrir):
+        itd_lr_samps = list()
+        for e in range(2):
+            # Filter the hrir
+            filt_loc    = sn.lfilter(b,a,loc[e,:])
+            in_db       = 0.5*sp.mag2db(np.square(filt_loc))
+            thresh_value = max(in_db) + thresh_level
+            idx         = np.where(in_db > thresh_value)[0][0]
+            itd_lr_samps.append(idx)
+            itd_index[p,e] = int(idx)
+        itd_samps.append(itd_lr_samps[0] - itd_lr_samps[1])
+    
+    itd_s = itd_samps/fs
+
+    return itd_s, itd_samps, itd_index
+
+
 def ild_estimator_rms(hrir):
     '''
     Calculate the ILD by taking the rms of the impulse response at each ear and taking the difference
@@ -114,7 +179,7 @@ def ild_estimator_rms(hrir):
     :paran hrir: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :return ild: ILD in dB for each location
     '''
-    rms = np.sqrt(np.mean(hrir**2,axis = 2))
+    rms = np.sqrt(np.mean(np.power(hrir,2),axis = 2))
     ild = sp.mag2db(rms[:,0]) - sp.mag2db(rms[:,1])
     return ild
 
@@ -131,7 +196,7 @@ def calculate_itd_difference(hrtf1,hrtf2):
     itd_diff = np.mean(np.abs(itd_s1-itd_s2)) * 1000000
     return itd_diff
 
-def calculate_ild_difference(hrtf1,hrtf2):
+def calculate_ild_difference(hrtf1,hrtf2, average = True):
     '''
     Calculates the absolute difference in ild values between two hrtfs
     
@@ -141,5 +206,53 @@ def calculate_ild_difference(hrtf1,hrtf2):
     '''
     ild1        = ild_estimator_rms(hrtf1.hrir)
     ild2        = ild_estimator_rms(hrtf2.hrir)
-    ild_diff    = np.mean(np.abs(ild1-ild2))
+    if average:
+        ild_diff    = np.mean(np.abs(ild1-ild2))
+    else:
+        ild_diff    = ild1-ild2
     return ild_diff
+
+def generate_table_difference_hrtfs(hrtf1,hrtf2):
+    '''
+    Generates a table that numerical calculates differences between two HRTFs (that are equal in window size and sample rate and locations)
+    This will do the location matching for you
+    :param hrtf1: SAM HRTF object (usually the synthetic hrtf)
+    :params hrtf2: SAM HRtF object (usually the measured hrtf)
+    '''
+    hrtf1, hrtf2        = ld.match_hrtf_locations(hrtf1,hrtf2)
+
+    df                  = pd.DataFrame()
+    df['itd_diff_us']   = (hrtf1.itd_s-hrtf2.itd_s)*1000000
+    df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False)
+    df['az']            = hrtf1.locs[:,0]
+    df['el']            = hrtf1.locs[:,1]
+    lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    df['lsd_l']         = lsd_mat[:,0]
+    df['lsd_r']         = lsd_mat[:,1]
+
+    return df
+
+def generate_table_difference_lsd_freq_hrtfs(hrtf1,hrtf2):
+    '''
+    Generates a table that numericall cualtes the LSD for each frequency
+    '''
+    lsd_mat,freqs = calculate_lsd_across_locations_per_frequency(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    
+    dfs = list()
+    ear_name = ['left','right']
+    for loc in range(np.shape(lsd_mat)[0]):
+        ear_df = list()
+        for ear in range(np.shape(lsd_mat)[1]):
+            df = pd.DataFrame()
+            df['lsd'] = lsd_mat[loc,ear,:]
+            df['freqs'] = freqs
+            df['ear'] =  ear_name[ear]
+            df['az'] = hrtf1.locs[loc,0]
+            df['el'] = hrtf1.locs[loc,1]
+            ear_df.append(df)
+        dfs.append(pd.concat(ear_df,axis = 0))
+    out_df = pd.concat(dfs,axis = 0)
+
+    out_df = out_df.groupby(['freqs','ear']).lsd.apply(sp.rms).reset_index()
+
+    return out_df

@@ -28,6 +28,10 @@ class HRTF:
         self.locs       = np.round(sofa.getVariableValue('SourcePosition').data,2) # Round to avoid any bizarre precision errors
         self.hrir       = sofa.getDataIR().data
         self.fs         = sofa.getSamplingRate().data[0]
+        # Get ITD
+        delay           = sofa.getDataDelay().data
+        itd             = delay[:,0] - delay[:,1]
+        self.itd_s      = itd/self.fs
 
 def load_example_behavioural_data():
     '''
@@ -71,6 +75,8 @@ def match_hrtf_locations(hrtf1,hrtf2):
         sys.exit('Error: Was not able to match all the locations in hrtf 1 with hrtf 2')
     hrtf2.hrir          = hrtf2.hrir[loc2_idx,:,:]
     hrtf2.locs          = hrtf2.locs[loc2_idx,:]
+    if len(hrtf2.itd_s) > 1:
+        hrtf2.itd_s         = hrtf2.itd_s[loc2_idx]
     return hrtf1, hrtf2
 
 def preprocess_behavioural_data(df:pd.DataFrame):
