@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import scipy
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from matplotlib.cm import ScalarMappable
+from matplotlib.lines import Line2D
 import matplotlib.animation as animation
 from spatialaudiometrics import hrtf_metrics as hf
 from spatialaudiometrics import angular_metrics as am
@@ -166,11 +166,9 @@ def plot_error_bar(axes,df,x_name,y_name,sample_name):
     '''
 
     x       = np.arange(0,len(df[x_name].unique()),1) + 0.2
-    av      = df.groupby(x_name).mean(numeric_only = True).reset_index()
-    std     = df.groupby(x_name).std(numeric_only = True).reset_index()/(len(df[sample_name].unique())**0.5)
-    y       = av[y_name]
-    yerr    = std[y_name]
-    axes.errorbar(x, y, yerr, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
+    y       = df.groupby(x_name).mean(numeric_only = True).reset_index()[y_name]
+    std     = df.groupby(x_name).std(numeric_only = True).reset_index()[y_name]/(len(df[sample_name].unique())**0.5)
+    axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
 
 def annotate_p_vals(axes,pval,x_coord):
     '''
@@ -393,23 +391,6 @@ def create_source_location_gif(fig,axes,save_filename,dpi = 120):
     rot_animation.save(save_filename, dpi=dpi, writer='pillow')
     print("Saved animation at: " + save_filename)
 
-def plot_error_bar(axes,df,x_name,y_name,sample_name):
-    '''
-    Plots errors bars using standard error and mean
-
-    :param axes: The axes you want to plot in
-    :param df: The dataframe you want to use
-    :param x_name: The variable on the x axis
-    :param y_name: The variable on the y axis
-    :param sample_name: The name of the column giving the subject or sample identifier
-    '''    
-    x       = np.arange(0,len(df[x_name].unique()),1) + 0.2
-    av      = df.groupby(x_name).mean(numeric_only = True).reset_index()
-    std     = df.groupby(x_name).std(numeric_only = True).reset_index()/(len(df[sample_name].unique())**0.5)
-    y       = av[y_name]
-    yerr    = std[y_name]
-    axes.errorbar(x, y, yerr, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
-
 
 def plot_hrir_both_ears(hrtf,az,el,axes):
     '''
@@ -421,8 +402,7 @@ def plot_hrir_both_ears(hrtf,az,el,axes):
     hrir_l = hrtf.hrir[idx,0,:]
     hrir_r = hrtf.hrir[idx,1,:]
 
-    ts = np.arange(0,len(hrir_l)/hrtf.fs,1/hrtf.fs)*1000
-
+    ts = (np.arange(0,len(hrir_l))/hrtf.fs)*1000
     axes.plot(ts,hrir_l,color = Colours.dict['L'])
     axes.plot(ts,hrir_r,color = Colours.dict['R'])
     axes.set_ylabel('Amplitude')
@@ -496,30 +476,44 @@ def plot_spectrum(sig,fs,axes):
     axes.set_ylabel('Magnitude (dB)')
     finish_axes(axes)
 
-def plot_ild_itd_difference(df):
+def plot_ild_itd_difference(df,diverging = True, highlighted_locations = None):
     '''
     Creates a plot to show the itd and ild difference
     '''
     # Plot ITD difference
     fig,gs = create_fig()
     axes = fig.add_subplot(gs[1:6,1:12])
-    huemax = max(abs(df.itd_diff_us))
-    sns.scatterplot(data=df, x="az", y="el", hue = "itd_diff_us", hue_norm = (-huemax,huemax), ax = axes, palette = "vlag")
+    if diverging:
+        palette = "vlag"
+        huemax = max(abs(df.itd_diff_us))
+        huemin = huemax
+    else:
+        palette = "viridis"
+        huemin = min(df.itd_diff_us)
+        huemax = max(df.itd_diff_us)
+
+    sns.scatterplot(data=df, x="az", y="el", hue = "itd_diff_us", hue_norm = (-huemin,huemax), ax = axes, palette = palette)
     axes.set_title('ITD difference')
     axes.set_ylabel('Elevation (°)')
     axes.set_xlabel('Azimuth (°); -> counterclockwise')
     finish_axes(axes)
-    add_colourbar_on_side(-huemax,huemax,"vlag",axes,'ITD difference (μs)')
+    add_colourbar_on_side(-huemin,huemax,palette,axes,'ITD difference (μs)')
 
     # Plot ILD difference
+    if diverging:
+        huemax = max(abs(df.ild_diff_db))
+        huemin = huemax
+    else:
+        huemin = min(df.ild_diff_db)
+        huemax = max(df.ild_diff_db)
+
     axes = fig.add_subplot(gs[7:12,1:12])
-    huemax = max(abs(df.ild_diff_db))
-    sns.scatterplot(data=df, x="az", y="el", hue = "ild_diff_db", hue_norm = (-huemax,huemax), ax = axes, palette = "vlag")
+    sns.scatterplot(data=df, x="az", y="el", hue = "ild_diff_db", hue_norm = (-huemin,huemax), ax = axes, palette = palette)
     axes.set_title('ILD difference')
     axes.set_ylabel('Elevation (°)')
     axes.set_xlabel('Azimuth (°); -> counterclockwise')
     finish_axes(axes)
-    add_colourbar_on_side(-huemax,huemax,"vlag",axes,'ILD difference (dB)')
+    add_colourbar_on_side(-huemin,huemax,palette,axes,'ILD difference (dB)')
 
     return fig
 
@@ -554,11 +548,37 @@ def plot_LSD_left_right_frequency(df):
     '''
     fig,gs = create_fig(fig_size = (8,4))
     df['freqs'] = df['freqs']/1000
-    axes = sns.lineplot(data = df, x = "freqs", y = "lsd", hue = "ear",palette = Palettes.left_right)
+    axes = sns.lineplot(data = df, x = "freqs", y = "lsd", hue = "ear",palette = Palettes.left_right, errorbar = "sd")
     axes.set_title("Log spectral distortion across location for each frequency (synthetic/measured)")
     axes.set_ylabel('Log spectral distortion (dB)')
     axes.set_xlabel('Frequency (kHz)')
     axes.set_xlim([0,24])
+    axes.set_xscale('log')
+    freqs = [0.25,0.5,1,2,4,8,12,16,20]
+    axes.set_xticks(freqs)
+    axes.set_xticklabels(freqs)
+    axes.set_xlim([0.2,20])
     finish_axes(axes,legend = 1)
 
     return fig
+
+def plot_raw_localisation(df,axes,coord):
+    '''
+    Plots a scatterplot with target vs. response
+    :param df: data frame to plot - that has the coord_target and also the confusion classification
+    :param axes: subplot axes to plot in
+    :param coord: what coordinate do you want to plot? (e.g. azi, ele, lat, pol)
+    '''
+    sns.scatterplot(data = df, x = coord + '_target', y = coord + '_response',alpha = 0.5, hue = 'confusion_classification',s = 40 ,ax = axes,palette = {"precision":"black","front-back":"red","in-cone":"blue","off-cone":"orange"})
+    axes.set_ylabel('Response')
+    axes.set_xlabel('Target')
+    axes.set_box_aspect(1)
+    finish_axes(axes,grid = 2)
+
+def create_raw_localisation_legend(axes):
+    # Need to do a manual legend
+    legend_elements = [Line2D([0], [0], marker='o', color='w', label='precision', markerfacecolor='black', markersize=10,alpha = 0.5),
+                    Line2D([0], [0], marker='o', color='w', label='front-back', markerfacecolor='red', markersize=10,alpha = 0.5),
+                    Line2D([0], [0], marker='o', color='w', label='in-cone', markerfacecolor='blue', markersize=10,alpha = 0.5),
+                    Line2D([0], [0], marker='o', color='w', label='off-cone', markerfacecolor='orange', markersize=10,alpha = 0.5)]
+    axes.legend(handles = legend_elements)

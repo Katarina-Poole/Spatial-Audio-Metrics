@@ -30,10 +30,11 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
 
         # For the circular stats modules don't need to wrap errors which is nice! Also make sure the polar errors are weighted due to pole compression
         pol_accuracy        = sts.circmean((group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
-        pol_abs_accuracy    = sts.circmean(np.abs(group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
+        # Check if I should have circ mean and circ std  for the abs versions - I don't think I do?
+        pol_abs_accuracy    = np.mean(np.abs(group.pol_response-group.pol_target)*group.polar_weight)
 
         pol_precision       = sts.circstd((group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
-        pol_abs_precision   = sts.circstd(np.abs(group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
+        pol_abs_precision   = np.std(np.abs(group.pol_response-group.pol_target)*group.polar_weight)
 
         # Calculate middle brooks quadrant error
         quadrant_error,confusions,responses_within_lateral_range = calculate_quadrant_error(group)
