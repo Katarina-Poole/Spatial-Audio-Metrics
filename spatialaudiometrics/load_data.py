@@ -3,6 +3,7 @@ Load data module
 '''
 import os
 import sys
+import wget
 from importlib import resources
 from pysofaconventions import SOFAFile
 import numpy as np
@@ -50,6 +51,21 @@ def load_example_sofa_files():
         hrtf2 = HRTF(sofa)
     return hrtf1,hrtf2
 
+def load_sonicom_sofa(subject:str,hrir_type:str,sample_rate:int,no_itd:bool = False):
+    '''
+    Loads in a SONICOM sofa file give you know the type of hrir you want and the participant number
+    :param subject: the pnumber of the subject (e.g. P0107)
+    :param hrir_type: type of hrir from this list: Raw, Windowed, FreeFieldComp, FreeFieldCompMinPhase
+    :param sample_rate: sample rate of the hrtf you want to load (44,48, or 96)
+    :param no_itd: A boolean that says if you want the ITD in the hrir (no_itd = False) or you want the version with the ITD removed from the hrir and in the metadata instead (no_itd = True)
+    '''
+    if no_itd:
+        hrir_type = hrir_type + '_NoITD'
+    link = 'ftp://transfer.ic.ac.uk:2122/2022_SONICOM-HRTF-DATASET/'+subject+'/HRTF/HRTF/' + str(sample_rate) + 'kHz/'+subject+'_'+hrir_type+'_' + str(sample_rate) + 'kHz.sofa'
+    wget.download(link,'load_sonicom_sofa_temp_file.sofa')
+    hrtf = HRTF('load_sonicom_sofa_temp_file.sofa')
+    hrtf.sofa_path = link
+    return hrtf
 
 def match_hrtf_locations(hrtf1,hrtf2):
     '''
@@ -137,3 +153,4 @@ def preprocess_behavioural_data(df:pd.DataFrame):
     df['unsigned_polar_error']   = abs(df.signed_polar_error)
 
     return df
+

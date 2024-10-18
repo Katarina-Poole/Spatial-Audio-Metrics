@@ -21,6 +21,12 @@ There are also two example sofa files you can load in:
 
     hrtf1,hrtf2 = ld.load_example_sofa_files()
 
+You can also load HRTFs directly from the SONICOM dataset (stored online). Here I am loading participant number 'P0107', with the windowed hrir at 48kHz which has the itd in the hrirs.
+
+.. code-block:: python
+
+    hrtf = ld.load_sonicom_sofa('P0107','Windowed',48,no_itd = False)
+
 After loading in the HRTFs, to run any direct comparisons we need to make sure the source locations are matched between them and reorder them if not. This can be done like so:
 
 .. code-block:: python
