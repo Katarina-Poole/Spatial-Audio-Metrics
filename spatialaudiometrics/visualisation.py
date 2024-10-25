@@ -344,18 +344,18 @@ def add_colourbar_on_side(hue_min,hue_max,colourmap,axes,axes_label):
     cbar    = axes.figure.colorbar(sm, ax = axes)
     cbar.set_label(axes_label, rotation = 90)
 
-def plot_source_locations(locs):
+def plot_source_locations(locs,elevation_palette = "tab10", point_size = 25):
     '''
     Plots the source locations on a 3d plot.
     
     :param locations: numpy array where each row is a location, col 1 = azimuth, col 2 = elevation, col 3 = distance. Can easily just use hrtf.locs
     '''
     # Plot the locations used
-    fig,gs = create_fig(fig_size=(10,10))
+    fig,gs = create_fig(fig_size=(5,5))
     x,y,z = am.polar2cartesian(locs[:,0], locs[:,1], locs[:,2])
     dist = max(abs(z))
     axes = fig.add_subplot(gs[0:12,0:12],projection='3d')
-    axes.scatter(x,y,z,s = 100,c = z, cmap = 'tab10' )
+    axes.scatter(x,y,z,s = point_size,c = z, cmap = elevation_palette)
     axes.set_xlabel('X')
     axes.set_ylabel('Y')
     axes.set_title('Source locations')
@@ -365,11 +365,11 @@ def plot_source_locations(locs):
     axes.set_aspect('equal')
     # Annotate
     x,y,z = am.polar2cartesian(0, 0, locs[0,2])
-    axes.text(x,y,z,  'Front', size=14, zorder=1, color = 'k')
+    axes.text(x,y,z,  'Front', size=14, color = 'k',)
     x,y,z = am.polar2cartesian(90, 0, locs[0,2])
-    axes.text(x,y,z,  'Left', size=14, zorder=1, color = 'k')
+    axes.text(x,y,z,  'Left', size=14, color = 'k')
     x,y,z = am.polar2cartesian(270, 0, locs[0,2])
-    axes.text(x,y,z,  'Right', size=14, zorder=1, color = 'k')
+    axes.text(x,y,z,  'Right', size=14, color = 'k')
     finish_axes(axes)
     show()
     return fig, axes
@@ -410,7 +410,7 @@ def plot_hrir_both_ears(hrtf,az,el,axes):
     axes.set_title('Azimuth: ' + str(az) + '°, elevation: ' + str(el) + '°.')
     finish_axes(axes)
 
-def plot_hrtf_both_ears(hrtf,az,el,axes):
+def plot_hrtf_both_ears(hrtf,az,el,axes,log_scale = True):
     '''
     lots the transfer function at a given position for left and right ears
     '''
@@ -426,6 +426,11 @@ def plot_hrtf_both_ears(hrtf,az,el,axes):
     axes.set_ylabel('Magnitude (dB)')
     axes.set_xlabel('Frequency (kHz)')
     axes.set_title('Azimuth: ' + str(az) + '°, elevation: ' + str(el) + '°.')
+    if log_scale:
+        axes.set_xscale('log')
+        axes.set_xticks([0.125,0.25,0.5,1,2,4,8,16,22])
+        axes.set_xticklabels([0.125,0.25,0.5,1,2,4,8,16,22])
+
     finish_axes(axes)
 
 def plot_spectrogram(sig,fs,axes,vmin_max = False, freq_max = 20000, db_flag = 0):
@@ -476,7 +481,7 @@ def plot_spectrum(sig,fs,axes):
     axes.set_ylabel('Magnitude (dB)')
     finish_axes(axes)
 
-def plot_ild_itd_difference(df,diverging = True, highlighted_locations = None):
+def plot_ild_itd_difference(df,diverging = True):
     '''
     Creates a plot to show the itd and ild difference
     '''
@@ -514,7 +519,7 @@ def plot_ild_itd_difference(df,diverging = True, highlighted_locations = None):
     axes.set_xlabel('Azimuth (°); -> counterclockwise')
     finish_axes(axes)
     add_colourbar_on_side(-huemin,huemax,palette,axes,'ILD difference (dB)')
-
+    show()
     return fig
 
 def plot_LSD_left_and_right(df):
@@ -524,7 +529,7 @@ def plot_LSD_left_and_right(df):
     fig,gs = create_fig()
     maxLSD = max([max(abs(df.lsd_l)),max(abs(df.lsd_r))])
     minLSD = min([min(abs(df.lsd_l)),min(abs(df.lsd_r))])
-    axes = fig.add_subplot(gs[1:6,1:11])
+    axes = fig.add_subplot(gs[1:6,1:12])
     sns.scatterplot(data=df, x="az", y="el", hue_norm = (minLSD,maxLSD), hue = "lsd_l", ax = axes, palette = "PuRd")
     axes.set_title('LSD of left ear')
     axes.set_ylabel('Elevation (°)')
@@ -532,14 +537,14 @@ def plot_LSD_left_and_right(df):
     finish_axes(axes)
     add_colourbar_on_side(minLSD,maxLSD,"PuRd",axes,'Log spectral distortion (dB)')
 
-    axes = fig.add_subplot(gs[7:12,1:11])
+    axes = fig.add_subplot(gs[7:12,1:12])
     sns.scatterplot(data=df, x="az", y="el", hue_norm = (minLSD,maxLSD), hue = "lsd_r", ax = axes, palette = "PuRd")
     axes.set_title('LSD of right ear')
     axes.set_ylabel('Elevation (°)') 
     axes.set_xlabel('Azimuth (°); -> counterclockwise')
     finish_axes(axes)
     add_colourbar_on_side(minLSD,maxLSD,"PuRd",axes,'Log spectral distortion (dB)')
-
+    show()
     return fig
 
 def plot_LSD_left_right_frequency(df):

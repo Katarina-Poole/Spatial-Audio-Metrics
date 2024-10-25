@@ -1,4 +1,4 @@
-Tutorial
+HRTF analysis tutorial
 =================================================
 
 This package can be used to visualise HRTFs and assess differences between HRTFs (currently those that are from the same database, i.e. have the same source localisations and IR length).
@@ -26,6 +26,12 @@ You can also load HRTFs directly from the SONICOM dataset (stored online). Here 
 .. code-block:: python
 
     hrtf = ld.load_sonicom_sofa('P0107','Windowed',48,no_itd = False)
+
+Visualising HRTFs
+-----------------------------------------
+The toolbox also comes with functions to visualise the HRTF you just loaded.
+
+
 
 After loading in the HRTFs, to run any direct comparisons we need to make sure the source locations are matched between them and reorder them if not. This can be done like so:
 

@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from spatialaudiometrics import angular_metrics as am
 from spatialaudiometrics import localisation_metrics as lm
+from spatialaudiometrics import hrtf_metrics as hf
 
 class HRTF:
     '''
@@ -31,8 +32,13 @@ class HRTF:
         self.fs         = sofa.getSamplingRate().data[0]
         # Get ITD
         delay           = sofa.getDataDelay().data
-        itd             = delay[:,0] - delay[:,1]
-        self.itd_s      = itd/self.fs
+        if np.shape(delay)[0] == 1:
+            print('Estimating itd using the threshold method')
+            itd_s, itd_samps, itd_index = hf.itd_estimator_threshold(self.hrir,self.fs)
+            self.itd_s = itd_s
+        else:
+            itd             = delay[:,0] - delay[:,1]
+            self.itd_s      = itd/self.fs
 
 def load_example_behavioural_data():
     '''
@@ -62,8 +68,11 @@ def load_sonicom_sofa(subject:str,hrir_type:str,sample_rate:int,no_itd:bool = Fa
     if no_itd:
         hrir_type = hrir_type + '_NoITD'
     link = 'ftp://transfer.ic.ac.uk:2122/2022_SONICOM-HRTF-DATASET/'+subject+'/HRTF/HRTF/' + str(sample_rate) + 'kHz/'+subject+'_'+hrir_type+'_' + str(sample_rate) + 'kHz.sofa'
-    wget.download(link,'load_sonicom_sofa_temp_file.sofa')
-    hrtf = HRTF('load_sonicom_sofa_temp_file.sofa')
+    temp_filename = 'load_sonicom_sofa_temp_file.sofa'
+    if os.path.exists(temp_filename):
+        os.remove(temp_filename) # if exist, remove it directly
+    wget.download(link,temp_filename)
+    hrtf = HRTF(temp_filename)
     hrtf.sofa_path = link
     return hrtf
 
