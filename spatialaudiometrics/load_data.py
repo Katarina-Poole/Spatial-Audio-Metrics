@@ -104,7 +104,7 @@ def match_hrtf_locations(hrtf1,hrtf2):
         hrtf2.itd_s         = hrtf2.itd_s[loc2_idx]
     return hrtf1, hrtf2
 
-def preprocess_behavioural_data(df:pd.DataFrame):
+def preprocess_behavioural_data(df:pd.DataFrame,cone_size_degrees = 45):
     '''
     Preprocesses the data to make sure we generate the information needed to calculate the metrics
     
@@ -144,7 +144,7 @@ def preprocess_behavioural_data(df:pd.DataFrame):
                                                               df.at[i,'azi_response'],df.at[i,'ele_response'])
         
         # Classify confusions
-        df.at[i,'confusion_classification'] = lm.classify_confusion(df.iloc[i])
+        df.at[i,'confusion_classification'] = lm.classify_confusion(df.iloc[i],cone_size_degrees=cone_size_degrees)
 
     # Calculate weighting
     df['polar_weight']           = lm.polar_error_weight(df)

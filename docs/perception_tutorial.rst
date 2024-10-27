@@ -1,82 +1,116 @@
-HRTF analysis tutorial
+Localisation behaviour analysis tutorial
 =================================================
 
-This package can be used to visualise HRTFs and assess differences between HRTFs (currently those that are from the same database, i.e. have the same source localisations and IR length).
+This package can be used to analyse performance in a localisation experiment and visualise the data
 
-Loading in HRTFs
-----------------------
+Loading in the behavioural data
+----------------------------------
 
-HRTFs are typically stored as sofa files, so the the module creates an HRTF object by pulling out relevant data from the sofa file when initialising the object. You can load your own sofa file like so:
+The package makes use of Pandas so all data is stored as a data frame. Here we will use some example data but if you want to use your own then it would be best to use pandas to load your data and concatenate it together to create a large dataframe.
+The important thing is to make sure you have columns denoting your indepdent variables (i.e. Subject and/or HRTF) as well as response variables specifically called:
+
+- azi_target
+- azi_response
+- ele_target
+- ele_response
+
+These denote the location of the target in the spherical coordinate system and the response of the subject
+
+When we load our data we will also want to run some preprocessing steps that:
+
+- 1. Wraps azimuth/elevation angles between -180 and 180 (negative = counterclockwise/down)
+- 2. Adds in the spherical coordinate system (lateral and polar angles)
+- 3. Calculate errors and classifys confusions
 
 .. code-block:: python
 
     from spatialaudiometrics import load_data as ld
 
-    hrtf1 = ld.HRTF(hrtf_original)
-    hrtf2 = ld.HRTF(hrtf_upsampled)
-
-There are also two example sofa files you can load in:
-
-.. code-block:: python
-
-    hrtf1,hrtf2 = ld.load_example_sofa_files()
-
-You can also load HRTFs directly from the SONICOM dataset (stored online). Here I am loading participant number 'P0107', with the windowed hrir at 48kHz which has the itd in the hrirs.
-
-.. code-block:: python
-
-    hrtf = ld.load_sonicom_sofa('P0107','Windowed',48,no_itd = False)
-
-Visualising HRTFs
------------------------------------------
-The toolbox also comes with functions to visualise the HRTF you just loaded.
+    df = ld.load_example_behavioural_data()
+    df = ld.preprocess_behavioural_data(df, cone_size_degrees=45)
 
 
-
-After loading in the HRTFs, to run any direct comparisons we need to make sure the source locations are matched between them and reorder them if not. This can be done like so:
-
-.. code-block:: python
-
-    hrtf1,hrtf2 = ld.match_hrtf_locations(hrtf1,hrtf2)
-
-Calculating HRTF metrics
------------------------------------------
-The function hrtf_metrics allows us to calculate a number of metrics regarding an HRTF
-For example we can calculate the ILD and ITD at each location as well as pull out the transfer function (the spectra).
-
-.. code-block:: python
-
-    from spatialaudiometrics import hrtf_metrics as hf
-
-    spectra, freqs, phase   = hf.hrir2hrtf(hrtf1.hrir,hrtf1.fs)
-    ild                     = hf.ild_estimator_rms(hrtf1.hrir)
-    itd_s,itd_samps,maxiacc = hf.itd_estimator_maxiacce(hrtf1.hrir,hrtf1.fs)
-
-
-Visualising HRTF metrics
------------------------------------------
-The function visualisation can be used to easily visualise some basic HRTF metrics such as the ILD, ITD and spectra and the source locations. The az argument in plot_hrtf_overview is used to select which azimuth locations you want to visualise the transfer functions (max four)
+One thing to note is that in the confusion classification you can adjust the size of the "cone" that classifys the type of confusion. It has a default of 45 degrees but you may want a small cone dependent on your use-case.
+Please see an example of how the classification works for a 45 degree cone and 20 degree cone where the target is at azi, ele coordinates: 0,0
+You can use the below function to plot your own confusion sphere for real or simulated value at a specified target
 
 .. code-block:: python
 
     from spatialaudiometrics import visualisation as vis
+    
+    vis.plot_confusion_sphere(df,azi_target = 0,ele_target = 0)
 
-    vis.plot_itd_overview(hrtf1)
-    vis.plot_ild_overview(hrtf1)
-    vis.plot_tf_overview(hrtf1,az = [0,90,180,270])
-    vis.plot_source_locations(hrtf1.locs)
+.. image:: ../images/example_classification_45.png
+   :width: 400
+.. image:: ../images/example_classification_20.png
+   :width: 400
 
-Calculating differences between HRTFs
------------------------------------------
 
-Then to calculate differences between the hrtfs we can use the following functions:
+Visualising the behavioural data
+---------------------------------------
+
+We can plot the raw localisation data when restricted to a certain condition and plane coloured by confusion 
 
 .. code-block:: python
 
-    from spatialaudiometrics import hrtf_metrics as hf
+    fig,gs  = vis.create_fig(fig_size = (10,5))
 
-    itd_diff = hf.calculate_itd_difference(hrtf1,hrtf2)
-    ild_diff = hf.calculate_ild_difference(hrtf1,hrtf2)
-    lsd,lsd_mat = hf.calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    df2     = df.loc[(df.HRTFidx == 2) & (df.ele_target == 0)]
+    axes    = fig.add_subplot(gs[1:11,1:6])
+    vis.plot_raw_localisation(df2,axes,'azi')
+    axes.set_title('Lateral plane (elevation = 0)')
 
-This will give you single values (averaged across source positions and/or frequency).
+    df2     = df.loc[(df.HRTFidx == 2) & (df.lat_target == 0)]
+    axes    = fig.add_subplot(gs[1:11,7:12])
+    vis.plot_raw_localisation(df2,axes,'pol')
+    axes.set_title('Medial plane (azimuth = 0)')
+
+.. image:: ../images/example_raw_localisation_data.png
+   :width: 800
+
+
+Calculating and visualising statistics on localisation metrics per subject
+-------------------------------------------------------------------------------------
+
+You may want to calculate and visualise the statistics of each metric across subjects
+
+N.B: The example plots from now on wont use the example data loaded before as the research is still ongoing and to create these plots multiple subjects are required.
+
+Here we can use pandas groupby function to get the median for each subject x HRTF, plot this and the errorbars across subjects (mean and s.e.)
+We can then run stats (checking for normality) and then running the appropriate pairwise comparisons and plotting this on the graph
+The terminal will print out the results from the statistics
+
+.. code-block:: python
+
+    from spatialaudiometrics import statistics as sts
+
+    df2 = df.groupby(['HRTFidx','subject']).median().reset_index()
+    sns.stripplot(data=df2, x="HRTFidx", y="great_circle_error", hue = 'subject',size = 6, palette = "crest", alpha = 0.6)
+    vis.plot_error_bar(axes,df2,"HRTFidx","great_circle_error","subject")
+    axes.set_ylabel('Great circle error (°)')
+    axes.set_title('Median across locations for subject')
+
+    # Run stats
+    stats       = sts.repeated_measures_anova(df2,'great_circle_error','subject',['HRTFidx'])
+    if stats == None:
+        stats   = sts.run_friedman_test(df,'great_circle_error','subject',['HRTFidx']) 
+    
+    # Plot stats
+    vis.plot_sig_bars_pairwise(axes,stats[1])
+
+    axes.set_xlabel('HRTF')
+    vis.finish_axes(axes)
+
+.. image:: ../images/example_great_circle_error.png
+   :width: 300
+
+
+This was just on a per trial metrics such as great circle error but you can also run the above on per subject metrics (aka % of front back confusions)
+
+To get the per subject metrics use the below function (where the last arguments specify your grouping variables): 
+
+.. code-block:: python
+
+    from spatialaudiometrics import localisation_metrics as lm
+
+    error_df = lm.calculate_localisation_error(df,'subject','HRTFidx')

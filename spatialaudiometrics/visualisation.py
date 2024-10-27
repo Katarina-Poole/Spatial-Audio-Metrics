@@ -56,6 +56,7 @@ class Palettes:
     Custom palettes for use in seaborn plotting
     '''
     left_right = sns.color_palette([Colours.dict['L'],Colours.dict['R']])
+    confusion = {"precision":"black","front-back":"red","in-cone":"blue","off-cone":"orange"}
 
 def create_fig(fig_size = (FigSize.fig_width,FigSize.fig_height),grid_spec_rows = 12, grid_spec_cols = 12):
     '''
@@ -574,7 +575,7 @@ def plot_raw_localisation(df,axes,coord):
     :param axes: subplot axes to plot in
     :param coord: what coordinate do you want to plot? (e.g. azi, ele, lat, pol)
     '''
-    sns.scatterplot(data = df, x = coord + '_target', y = coord + '_response',alpha = 0.5, hue = 'confusion_classification',s = 40 ,ax = axes,palette = {"precision":"black","front-back":"red","in-cone":"blue","off-cone":"orange"})
+    sns.scatterplot(data = df, x = coord + '_target', y = coord + '_response',alpha = 0.5, hue = 'confusion_classification',s = 40 ,ax = axes,palette = Palettes.confusion)
     axes.set_ylabel('Response')
     axes.set_xlabel('Target')
     axes.set_box_aspect(1)
@@ -587,3 +588,40 @@ def create_raw_localisation_legend(axes):
                     Line2D([0], [0], marker='o', color='w', label='in-cone', markerfacecolor='blue', markersize=10,alpha = 0.5),
                     Line2D([0], [0], marker='o', color='w', label='off-cone', markerfacecolor='orange', markersize=10,alpha = 0.5)]
     axes.legend(handles = legend_elements)
+
+def plot_confusion_sphere(df,azi_target:float,ele_target:float, point_size = 25):
+    '''
+    Plots the response to a specific target in a sphere and colours by confusion
+    :param df: Dataframe of the preprocessed behavioural data 
+    :param azi_target: Azimuth coordinate of the target to filter by
+    :param ele_taret: Elevation coordinate of the target to filter by
+    :param point_size: Size of points on sphere
+    '''
+    df              = df.loc[((df.azi_target == azi_target) & (df.ele_target == ele_target))]
+    distance        = 1.5
+    df['distance']  = distance # only here for the visualisation
+    fig,gs          = create_fig(fig_size=(5,5))
+
+    x,y,z           = am.polar2cartesian(df.azi_response, df.ele_response, df.distance)
+    dist            = max(abs(z))
+    axes            = fig.add_subplot(gs[0:12,0:12],projection='3d')
+    
+    axes.scatter(x,y,z,s = point_size,c = [Palettes.confusion[i] for i in df.confusion_classification],alpha = 0.5)
+    axes.set_xlabel('X')
+    axes.set_ylabel('Y')
+    axes.set_title('Source locations')
+    axes.set_ylim(-dist,dist)
+    axes.set_xlim(-dist,dist)
+    axes.set_zlim(-dist,dist)
+    axes.set_aspect('equal')
+    # Annotate
+    x,y,z = am.polar2cartesian(0, 0, distance)
+    axes.text(x,y,z,  'Front', size=14, color = 'k',)
+    x,y,z = am.polar2cartesian(90, 0, distance)
+    axes.text(x,y,z,  'Left', size=14, color = 'k')
+    x,y,z = am.polar2cartesian(270, 0, distance)
+    axes.text(x,y,z,  'Right', size=14, color = 'k')
+    finish_axes(axes)
+    create_raw_localisation_legend(axes)
+    show()
+    return fig, axes

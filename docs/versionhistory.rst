@@ -2,12 +2,12 @@ Version history
 =================================================
 
 - (18/10/2024) **0.1.0** Major release of Spatial Audio Metrics. See patch notes below:
-    - Updated documentation
+    - Updated documentation to include tutorials on HRTF analysis and localisation peformance analysis
     - Changed all power calculations to use np.power rather than '**' due to errors using '**'
     - Added ITD property to the HRTF object in load_data and it would pull ITD from the meta data of the SOFA file if present
     - Changed pol_abs_accuracy and precision in calculate_localisation_error to just use np.std rather than circularstd (as its not necessary when looking at absolulte values)
     - Changed the way that plot_error_bar deals with the data on the y axis to make it work better across different variable types
-    - Change direction of ITD and ILD polar plot in plot_itd_overview and plot_ild_overview
+    - Changed direction of ITD and ILD polar plot in plot_itd_overview and plot_ild_overview
 
     - Added functions:
         - calculate_lsd_across_locations_per_frequency
@@ -26,6 +26,7 @@ Version history
         - plot_raw_Localisation
         - create_raw_localisation_legend
         - load_sonicom_sofa
+        - plot_confusion_sphere
 
     - Added classes:
         - visualisation.Colours
@@ -34,8 +35,6 @@ Version history
     - Added parameters to functions:
         - itd_estimator_maxiacce
         - calculate_ild_difference
-
-To compare from latest pip version: https://github.com/Katarina-Poole/Spatial-Audio-Metrics/compare/a12bac7..00f6147
 
 - (20/06/2024) **0.0.8** Updated LAP challenge ITD threshold
 - (17/06/2024) **0.0.7** Bug fix - Updated itdestimator maxiacce to first low pass the hrir at 3000Hz with filter order of 10 as previously was just on broadband hrir
