@@ -12,7 +12,7 @@ sys.path.insert(0,os.path.abspath('..'))
 project = 'Spatial Audio Metrics'
 copyright = '2024, Katarina C. Poole'
 author = 'Katarina C. Poole'
-version = '0.0.4'
+version = '0.1.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

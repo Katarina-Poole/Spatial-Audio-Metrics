@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: spatialaudiometrics
-Version: 0.0.8
+Version: 0.1.2
 Summary: For calculating spatial audio metrics
 Author-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
 Maintainer-email: "Katarina C. Poole" <katarina.poole@imperial.ac.uk>
@@ -683,41 +683,82 @@ Keywords: spatial,audio,localisation,perception,psychoacoustic,psychophysics,hrt
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: alabaster>=0.7.16
+Requires-Dist: asttokens>=2.4.1
 Requires-Dist: Babel>=2.14.0
 Requires-Dist: certifi>=2024.2.2
 Requires-Dist: cftime>=1.6.3
 Requires-Dist: charset-normalizer>=3.3.2
 Requires-Dist: colorama>=0.4.6
+Requires-Dist: comm>=0.2.2
 Requires-Dist: contourpy>=1.2.0
 Requires-Dist: cycler>=0.12.1
+Requires-Dist: debugpy>=1.8.1
+Requires-Dist: decorator>=5.1.1
 Requires-Dist: docutils>=0.20.1
+Requires-Dist: executing>=2.0.1
 Requires-Dist: fonttools>=4.50.0
 Requires-Dist: idna>=3.6
 Requires-Dist: imagesize>=1.4.1
+Requires-Dist: importlib_metadata>=7.1.0
+Requires-Dist: ipykernel>=6.29.3
+Requires-Dist: ipython>=8.22.2
+Requires-Dist: jaraco.classes>=3.4.0
+Requires-Dist: jaraco.context>=5.3.0
+Requires-Dist: jaraco.functools>=4.0.1
+Requires-Dist: jedi>=0.19.1
 Requires-Dist: Jinja2>=3.1.3
+Requires-Dist: jupyter_client>=8.6.1
+Requires-Dist: jupyter_core>=5.7.2
+Requires-Dist: keyring>=25.2.1
 Requires-Dist: kiwisolver>=1.4.5
+Requires-Dist: markdown-it-py>=3.0.0
 Requires-Dist: MarkupSafe>=2.1.5
 Requires-Dist: matplotlib>=3.8.3
+Requires-Dist: matplotlib-inline>=0.1.6
+Requires-Dist: mdurl>=0.1.2
+Requires-Dist: more-itertools>=10.2.0
+Requires-Dist: nest-asyncio>=1.6.0
 Requires-Dist: netCDF4>=1.6.5
+Requires-Dist: nh3>=0.2.17
 Requires-Dist: numpy>=1.26.4
 Requires-Dist: packaging>=24.0
 Requires-Dist: pandas>=2.2.1
+Requires-Dist: parso>=0.8.3
 Requires-Dist: patsy>=0.5.6
 Requires-Dist: pillow>=10.2.0
+Requires-Dist: pkginfo>=1.11.0
+Requires-Dist: platformdirs>=4.2.0
+Requires-Dist: prompt-toolkit>=3.0.43
+Requires-Dist: psutil>=5.9.8
+Requires-Dist: pure-eval>=0.2.2
 Requires-Dist: Pygments>=2.17.2
 Requires-Dist: pyparsing>=3.1.2
+Requires-Dist: pyproject_hooks>=1.1.0
 Requires-Dist: pysofaconventions>=0.1.5
 Requires-Dist: python-dateutil>=2.9.0.post0
 Requires-Dist: pytz>=2024.1
+Requires-Dist: pywin32>=306
+Requires-Dist: pywin32-ctypes>=0.2.2
+Requires-Dist: pyzmq>=25.1.2
+Requires-Dist: readme_renderer>=43.0
 Requires-Dist: requests>=2.31.0
+Requires-Dist: requests-toolbelt>=1.0.0
+Requires-Dist: rfc3986>=2.0.0
+Requires-Dist: rich>=13.7.1
 Requires-Dist: scikit-posthocs>=0.9.0
 Requires-Dist: scipy>=1.12.0
 Requires-Dist: seaborn>=0.13.2
 Requires-Dist: six>=1.16.0
 Requires-Dist: snowballstemmer>=2.2.0
+Requires-Dist: stack-data>=0.6.3
 Requires-Dist: statsmodels>=0.14.1
+Requires-Dist: tornado>=6.4
+Requires-Dist: traitlets>=5.14.2
 Requires-Dist: tzdata>=2024.1
 Requires-Dist: urllib3>=2.2.1
+Requires-Dist: wcwidth>=0.2.13
+Requires-Dist: wget>=3.2
+Requires-Dist: zipp>=3.19.2
 
 # Spatial Audio Metrics
 <center><img src="./images/sam_logo_transparent.png" height="200"></center>
@@ -732,6 +773,10 @@ You can install the package using pip:
 'pip install spatialaudiometrics'
 
 # Acknowledgements
+If you use this toolbox in your own work then please cite (where x is the version number):
+*Spatial Audio Metrics 0.X, K. C. Poole, AXD, Imperial College London (https://github.com/Katarina-Poole/Spatial-Audio-Metrics)*
+
+
 This work was created whilst part of of the Audio Experience Design Team (https://www.axdesign.co.uk/) at Imperial College London.
 
 <img src="./images/axd_logo.png" height="80">   <img src="./images/imperial_logo.png" height="80">

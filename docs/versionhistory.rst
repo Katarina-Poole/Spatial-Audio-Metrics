@@ -1,6 +1,6 @@
 Version history
 =================================================
-
+- (18/10/2024) **0.1.2** Fixed project dependencies
 - (18/10/2024) **0.1.0** Major release of Spatial Audio Metrics. See patch notes below:
     - Updated documentation to include tutorials on HRTF analysis and localisation peformance analysis
     - Changed all power calculations to use np.power rather than '**' due to errors using '**'
