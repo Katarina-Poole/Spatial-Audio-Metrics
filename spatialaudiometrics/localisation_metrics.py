@@ -30,10 +30,10 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
 
         # For the circular stats modules don't need to wrap errors which is nice! Also make sure the polar errors are weighted due to pole compression
         pol_accuracy        = sts.circmean((group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
-        pol_abs_accuracy    = sts.circmean(np.abs(group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
+        pol_abs_accuracy    = np.mean(np.abs(group.pol_response-group.pol_target)*group.polar_weight)
 
         pol_precision       = sts.circstd((group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
-        pol_abs_precision   = sts.circstd(np.abs(group.pol_response-group.pol_target)*group.polar_weight,high = 270, low = -90)
+        pol_abs_precision   = np.std(np.abs(group.pol_response-group.pol_target)*group.polar_weight)
 
         # Calculate middle brooks quadrant error
         quadrant_error,confusions,responses_within_lateral_range = calculate_quadrant_error(group)
@@ -84,27 +84,26 @@ def polar_error_weight(df: pd.DataFrame):
     w = 0.5*np.cos(2*np.deg2rad(df.lat_target)) + 0.5
     return w
 
-def classify_confusion(row):
+def classify_confusion(row,cone_size_degrees = 45):
     '''
-    Classifys perceptual confusions
+    Classifys perceptual confusions as per Poirier-Quinot et al. (2022): 10.5772/intechopen.104931
 
     | Classifies whether the response is a:
-    | - Precision error (within 45 degrees around target)
-    | - Front-back error (within 45 degrees of the opposite hemifield of the target)
-    | - In-cone error
-    | - Off-cone error
-    | - Combined - need to do this still!
+    | - Precision error (within 45 degrees around target as default)
+    | - Front-back error (within 45 degrees as default of the opposite hemifield of the target)
+    | - In-cone error (errors made within the lateral cone, i.e. responses that failed at elevation judgements but were good in azimuth judgements)
+    | - Off-cone error (errors that failed in azimuth judgements, outside of the cone)
 
     :param row: One row of a pandas dataframe with the columns 'azi_target, ele_target, azi_response, ele_response, lat_response, lat_target, pol_response and pol_target
     '''
     error = am.great_circle_error(row.azi_target,row.ele_target,row.azi_response,row.ele_response)
-    if error <= 45:
+    if error <= cone_size_degrees:
         classification = 'precision'
     else: # Check if its front back so get the opposite side azimuth angle
         error = am.great_circle_error(am.wrap_angle(-(180+row.azi_target)),row.ele_target,row.azi_response,row.ele_response) 
-        if error <= 45:
+        if error <= cone_size_degrees:
             classification = 'front-back'
-        elif np.abs(row.lat_response - row.lat_target) <= 45:
+        elif np.abs(row.lat_response - row.lat_target) <= cone_size_degrees:
             classification = 'in-cone'
         else:
             classification = 'off-cone'

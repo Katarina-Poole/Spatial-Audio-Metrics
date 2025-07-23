@@ -11,7 +11,8 @@ Spatial Audio Metrics: Available Documentation
    :caption: Contents:
    
    install
-   tutorial
+   hrtf_tutorial
+   perception_tutorial
    support
    api
    versionhistory

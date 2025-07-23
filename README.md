@@ -11,6 +11,10 @@ You can install the package using pip:
 'pip install spatialaudiometrics'
 
 # Acknowledgements
+If you use this toolbox in your own work then please cite (where x is the version number):
+*Spatial Audio Metrics 0.X, K. C. Poole, AXD, Imperial College London (https://github.com/Katarina-Poole/Spatial-Audio-Metrics)*
+
+
 This work was created whilst part of of the Audio Experience Design Team (https://www.axdesign.co.uk/) at Imperial College London.
 
 <img src="./images/axd_logo.png" height="80">   <img src="./images/imperial_logo.png" height="80">
