@@ -212,13 +212,15 @@ def calculate_ild_difference(hrtf1,hrtf2, average = True):
         ild_diff    = ild1-ild2
     return ild_diff
 
-def hrtf2dtf(hrtf, f1=50, f2=18000, atten = None, rms = False):
+
+def hrtf2dtf(hrtf, f1=50, f2=18000, atten = 20, rms = False):
     '''
     Extracts the directional transfer function (DTF) and common transfer function (CTF) from HRTF data.
 
     :param hrtf: hrtf to be converted to dtf and ctf (custom hrtf object)
     :param f1: Lower frequency bound of filtering in Hz, default = 50Hz
     :param f2: Upper frequency bound of filtering in Hz, default = 18 kHz
+    :param atten: Attenuation in dB to apply to the CTF to avoid clipping, default = 20dB
     :param weights: not supported at the moment.
     :param rms: If True, evaluate CTF magnitude spectrum by RMS of linear magnitude spectra, equivalent to diffuse-field compensation instead of default log-manitude spectra
     :return dtf: Directional transfer function (DTF)
@@ -227,7 +229,7 @@ def hrtf2dtf(hrtf, f1=50, f2=18000, atten = None, rms = False):
     :Original function from AMTtoolbox (Author: Robert Baumgartner (2010)), transcribed to Python. 
     '''
     fs          = hrtf.fs
-    hrtfmtx     = np.transpose(hrtf.hrir, (2, 0, 1))
+    hrtfmtx     = np.transpose(hrtf.hrir, (2,0,1))
     n           = hrtfmtx.shape[0]
     nfft        = n
     
@@ -262,63 +264,20 @@ def hrtf2dtf(hrtf, f1=50, f2=18000, atten = None, rms = False):
     # Get IR
     ctfmtx = np.real(np.fft.ifft(ctff, n = nfft, axis = 0))
 
+    # DTF Calculation
+    dtff = np.copy(hrtff)
+    dtff[idx, :, :] = hrtff[idx, :, :]/(ctff[idx,  np.newaxis,:])
+    dtfmtx = np.real(np.fft.ifft(dtff, n=nfft, axis=0))
 
+    # Attenuate to avoid clipping
+    ctfmtx = ctfmtx/np.power(10, atten/20)
+    dtfmtx = dtfmtx/np.power(10, atten/20)
 
-    return 
-
-def hrtf2dtf(hrtf, f1=50, f2=18000, atten = None, rms = False):
-    '''
-    Extracts the directional transfer function (DTF) and common transfer function (CTF) from HRTF data.
-
-    :param hrtf: hrtf to be converted to dtf and ctf (custom hrtf object)
-    :param f1: Lower frequency bound of filtering in Hz, default = 50Hz
-    :param f2: Upper frequency bound of filtering in Hz, default = 18 kHz
-    :param weights: not supported at the moment.
-    :param rms: If True, evaluate CTF magnitude spectrum by RMS of linear magnitude spectra, equivalent to diffuse-field compensation instead of default log-manitude spectra
-    :return dtf: Directional transfer function (DTF)
-    :return ctf: Common transfer function (CTF)
+    dtf = np.transpose(dtfmtx, (1,2,0))
+    ctf = np.transpose(ctfmtx, (1,0))
+    ctf = ctf[np.newaxis,:,:]
     
-    :Original function from AMTtoolbox (Author: Robert Baumgartner (2010)), transcribed to Python. 
-    '''
-    fs          = hrtf.fs
-    hrtfmtx     = np.transpose(hrtf.hrir, (2, 0, 1))
-    n           = hrtfmtx.shape[0]
-    nfft        = n
-    
-    # Frequency bounds
-    df          = fs/nfft # Frequency resolution
-    f           = np.arange(0,fs,df)
-    idx         = ((f >= f1) & (f <= f2))
-    idx[int(nfft/2)+1:] = idx[1:int(nfft/2)][::-1]
-    
-    # CTF calculation
-    hrtff = np.fft.fft(hrtfmtx, n = nfft, axis=0)  # FFT along the first axis (frequency)
-    
-    if rms:
-        ctffavg = np.sqrt(np.mean(np.square(np.abs(hrtff)), axis=1))
-    else:
-        ctffavg = np.mean(np.log(np.abs(hrtff)+np.finfo(float).eps),axis = 1)
-    
-    # Force minimum phase
-    ctfflog = np.mean(np.log(np.abs(hrtff)+np.finfo(float).eps), axis=1)
-    ctfcep = np.fft.ifft(ctfflog,n = nfft, axis = 0) # flip acausal part to causal part or simply multiply
-    ctfcep[int(nfft/2)+1:nfft+1,:] = 0
-    ctfcep[1:int(nfft/2),:] = 2*ctfcep[1:int(nfft/2),:]    # causal part by 2 (due to symmetry)
-    ctfflog = np.fft.fft(ctfcep,nfft,axis = 0)
-    ctfp = np.exp(ctfflog)
-
-    # Get complex spectrum
-    if rms:
-        ctff = ctffavg * np.exp(1j * np.angle(ctfp))
-    else:
-        ctff = np.exp(ctffavg) * np.exp(1j * np.angle(ctfp))
-    
-    # Get IR
-    ctfmtx = np.real(np.fft.ifft(ctff, n = nfft, axis = 0))
-
-
-
-    return 
+    return dtf,ctf
 
 def generate_table_difference_hrtfs(hrtf1,hrtf2):
     '''

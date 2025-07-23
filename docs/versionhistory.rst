@@ -1,5 +1,23 @@
 Version history
 =================================================
+- (15/07/2025) **0.1.3** Added new functionality, modifications and fixes (these are still to do!, make note of which ones are done and tested) 
+    - Modifications
+        - vis.plot_error_bar has a new argument to choose whether the standard deviation or standard error is plot_itd_overview
+        - in lsd functions added an argument to allow the user to choose the frequency range the lsd is calculated over 
+        - hf.ild_estimator_rms - check that to calculate the ild it filters the hrir first
+        - hf.hrtf2dtf, calculated the dtf of the hrtf 
+    - Fixes
+        - Fixed documentation to show all the functions that are available
+        - Fizxed the statistics function to allow for normality if sample is greater than X
+    - Added functions:
+        - Load in synthetic HRTFS 
+        - Load in 3D scans 
+        - Plot 3D scans (generate_3d_head_plots) in samvis in sonicom 
+        - Add all the functions from figure_numerical_basic that is in the sonicom repo
+        - Add ERB weighing functions 
+        - Integrated with the SONICOM ecosystem
+        - Added tutorials for new functions
+
 - (18/10/2024) **0.1.2** Fixed project dependencies
 - (18/10/2024) **0.1.0** Major release of Spatial Audio Metrics. See patch notes below:
     - Updated documentation to include tutorials on HRTF analysis and localisation peformance analysis

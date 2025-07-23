@@ -231,14 +231,18 @@ def show():
     '''
     plt.show(block = False)
 
-def plot_tf_overview(hrtf,az = [0,90,180,270]):
+def plot_tf_overview(hrtf,type = 'hrtf',az = [0,90,180,270]):
     '''
     A function that displays the transfer function at multiple elevation locations and select azimuth locations (max four)
     
     :param hrtf: The hrtf object as loaded in by hrtf = load_data.HRTF(sofa_path)
     :param az: The azimuth locations in which the transfer functions will be plotted (max four for nice plots). Default is ahead, left, behind and right
     '''
-    tfs,freqs,phase = hf.hrir2hrtf(hrtf.hrir,hrtf.fs)
+    if type == 'hrtf':
+        tfs,freqs,phase = hf.hrir2hrtf(hrtf.hrir,hrtf.fs)
+    elif type == 'dtf':
+        tfs,freqs,phase = hf.hrir2hrtf(hrtf.dtf_ir,hrtf.fs)
+
     freq_idx        = np.where((freqs >= 20) & (freqs <=20000))[0]
     freqs           = freqs[freq_idx]
     # Get the color map limits
