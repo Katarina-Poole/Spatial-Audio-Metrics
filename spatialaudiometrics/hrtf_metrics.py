@@ -196,7 +196,7 @@ def calculate_itd_difference(hrtf1,hrtf2):
     itd_diff = np.mean(np.abs(itd_s1-itd_s2)) * 1000000
     return itd_diff
 
-def calculate_ild_difference(hrtf1,hrtf2, average = True):
+def calculate_ild_difference(hrtf1,hrtf2, average = True, type = 'hrtf'):
     '''
     Calculates the absolute difference in ild values between two hrtfs
     
@@ -204,8 +204,13 @@ def calculate_ild_difference(hrtf1,hrtf2, average = True):
     :param hrtf2: second hrtf (custom hrtf object)
     :return ild_diff: the average ild difference across locations in dB 
     '''
-    ild1        = ild_estimator_rms(hrtf1.hrir)
-    ild2        = ild_estimator_rms(hrtf2.hrir)
+    if type == 'hrtf':
+        ild1        = ild_estimator_rms(hrtf1.hrir)
+        ild2        = ild_estimator_rms(hrtf2.hrir)
+    elif type == 'dtf':
+        ild1        = ild_estimator_rms(hrtf1.dtf_ir)
+        ild2        = ild_estimator_rms(hrtf2.dtf_ir)
+
     if average:
         ild_diff    = np.mean(np.abs(ild1-ild2))
     else:
@@ -279,7 +284,7 @@ def hrtf2dtf(hrtf, f1=50, f2=18000, atten = 20, rms = False):
     
     return dtf,ctf
 
-def generate_table_difference_hrtfs(hrtf1,hrtf2):
+def generate_table_difference_hrtfs(hrtf1,hrtf2,type = 'hrtf'):
     '''
     Generates a table that numerical calculates differences between two HRTFs (that are equal in window size and sample rate and locations)
     This will do the location matching for you
@@ -290,20 +295,28 @@ def generate_table_difference_hrtfs(hrtf1,hrtf2):
 
     df                  = pd.DataFrame()
     df['itd_diff_us']   = (hrtf1.itd_s-hrtf2.itd_s)*1000000
-    df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False)
+    if type == 'hrtf':
+        df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False)
+        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    elif type == 'dtf':
+        df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False, type = 'dtf')
+        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.dtf_ir,hrtf2.dtf_ir,hrtf1.fs)
+
     df['az']            = hrtf1.locs[:,0]
     df['el']            = hrtf1.locs[:,1]
-    lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
     df['lsd_l']         = lsd_mat[:,0]
     df['lsd_r']         = lsd_mat[:,1]
 
     return df
 
-def generate_table_difference_lsd_freq_hrtfs(hrtf1,hrtf2):
+def generate_table_difference_lsd_freq_hrtfs(hrtf1,hrtf2, type = 'hrtf'):
     '''
     Generates a table that numericall cualtes the LSD for each frequency
     '''
-    lsd_mat,freqs = calculate_lsd_across_locations_per_frequency(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    if type == 'hrtf':
+        lsd_mat,freqs = calculate_lsd_across_locations_per_frequency(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+    elif type == 'dtf':
+        lsd_mat,freqs = calculate_lsd_across_locations_per_frequency(hrtf1.dtf_ir,hrtf2.dtf_ir,hrtf1.fs)
     
     dfs = list()
     ear_name = ['left','right']
@@ -319,7 +332,7 @@ def generate_table_difference_lsd_freq_hrtfs(hrtf1,hrtf2):
             ear_df.append(df)
         dfs.append(pd.concat(ear_df,axis = 0))
     out_df = pd.concat(dfs,axis = 0)
-
+    loc_out_df = out_df.groupby(['freqs','ear','az','el']).lsd.apply(sp.rms).reset_index()
     out_df = out_df.groupby(['freqs','ear']).lsd.apply(sp.rms).reset_index()
 
-    return out_df
+    return out_df,loc_out_df

@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: spatialaudiometrics
 Version: 0.1.2
 Summary: For calculating spatial audio metrics
@@ -759,6 +759,7 @@ Requires-Dist: urllib3>=2.2.1
 Requires-Dist: wcwidth>=0.2.13
 Requires-Dist: wget>=3.2
 Requires-Dist: zipp>=3.19.2
+Dynamic: license-file
 
 # Spatial Audio Metrics
 <center><img src="./images/sam_logo_transparent.png" height="200"></center>

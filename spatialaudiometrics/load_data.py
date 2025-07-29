@@ -31,6 +31,7 @@ class HRTF:
         self.locs       = np.round(sofa.getVariableValue('SourcePosition').data,2) # Round to avoid any bizarre precision errors
         self.hrir       = sofa.getDataIR().data
         self.fs         = sofa.getSamplingRate().data[0]
+
         # Get ITD
         delay           = sofa.getDataDelay().data
         if np.shape(delay)[0] == 1:
@@ -40,6 +41,10 @@ class HRTF:
         else:
             itd             = delay[:,0] - delay[:,1]
             self.itd_s      = itd/self.fs
+        
+        dtf,ctf = hf.hrtf2dtf(self)
+        self.dtf_ir     = dtf
+        self.ctf_ir     = ctf
 
 def load_example_behavioural_data():
     '''
