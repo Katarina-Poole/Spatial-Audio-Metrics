@@ -54,13 +54,15 @@ def calculate_lsd_across_freqs(tf1:np.array,tf2:np.array):
     lsd = np.sqrt(np.mean(np.power(lsd,2)))
     return lsd 
 
-def calculate_lsd_across_locations(hrir1,hrir2,fs):
+def calculate_lsd_across_locations(hrir1,hrir2,fs,flow = 20,fhigh = 20000):
     '''
     Calculates the log spectral distortion across locations between two location matched hrirs only between 20 and 20000Hz
     
     :param hrir1: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :param hrir2: 3d array of another impulse response at each location x ear. Shape should be locations x ears x samples
     :param fs: sample rate
+    :param flow: lower frequency bound of lsd calculation in Hz
+    :param fhigh: upper frequency bound of lsd calculation in Hz
     :param lsd: the mean lsd of across ears and locations
     :param lsd_mat: the lsd at each ear x location.
     '''
@@ -70,7 +72,7 @@ def calculate_lsd_across_locations(hrir1,hrir2,fs):
     hrtfs1, freqs, hrtfs_phase = hrir2hrtf(hrir1,fs,db_flag = 0)
     hrtfs2, freqs, hrtfs_phase = hrir2hrtf(hrir2,fs,db_flag = 0)
     
-    idx     = np.where((freqs >= 20) & (freqs <= 20000))[0] # This should be the same as the hrtfs should be matched in terms of length and they should have the same fs
+    idx     = np.where((freqs >= flow) & (freqs <= fhigh))[0] # This should be the same as the hrtfs should be matched in terms of length and they should have the same fs
     hrtfs1  = hrtfs1[:,:,idx]
     hrtfs2  = hrtfs2[:,:,idx]
     
@@ -82,13 +84,15 @@ def calculate_lsd_across_locations(hrir1,hrir2,fs):
     lsd = np.mean(lsd_mat)
     return lsd,lsd_mat
 
-def calculate_lsd_across_locations_per_frequency(hrir1,hrir2,fs):
+def calculate_lsd_across_locations_per_frequency(hrir1,hrir2,fs,flow = 20,fhigh = 20000):
     '''
     Calculates the log spectral distortion across locations between two location matched hrirs only between 20 and 20000Hz and includes frequency information
     
     :param hrir1: 3d array of the impulse response at each location x ear. Shape should be locations x ears x samples
     :param hrir2: 3d array of another impulse response at each location x ear. Shape should be locations x ears x samples
     :param fs: sample rate
+    :param flow: lower frequency bound of lsd calculation in Hz
+    :param fhigh: upper frequency bound of lsd calculation in Hz
     :param lsd_mat: the lsd at each ear x location x frequency.
     '''
     if np.shape(hrir1)[2] != np.shape(hrir2)[2]:
@@ -97,7 +101,7 @@ def calculate_lsd_across_locations_per_frequency(hrir1,hrir2,fs):
     hrtfs1, freqs, hrtfs_phase = hrir2hrtf(hrir1,fs,db_flag = 0)
     hrtfs2, freqs, hrtfs_phase = hrir2hrtf(hrir2,fs,db_flag = 0)
     
-    idx     = np.where((freqs >= 20) & (freqs <= 20000))[0] # This should be the same as the hrtfs should be matched in terms of length and they should have the same fs
+    idx     = np.where((freqs >= flow) & (freqs <= fhigh))[0] # This should be the same as the hrtfs should be matched in terms of length and they should have the same fs
     hrtfs1  = hrtfs1[:,:,idx]
     hrtfs2  = hrtfs2[:,:,idx]
     freqs   = freqs[idx]
@@ -218,13 +222,13 @@ def calculate_ild_difference(hrtf1,hrtf2, average = True, type = 'hrtf'):
     return ild_diff
 
 
-def hrtf2dtf(hrtf, f1=50, f2=18000, atten = 20, rms = False):
+def hrtf2dtf(hrtf, f1=20, f2=20000, atten = 20, rms = False):
     '''
     Extracts the directional transfer function (DTF) and common transfer function (CTF) from HRTF data.
 
     :param hrtf: hrtf to be converted to dtf and ctf (custom hrtf object)
-    :param f1: Lower frequency bound of filtering in Hz, default = 50Hz
-    :param f2: Upper frequency bound of filtering in Hz, default = 18 kHz
+    :param f1: Lower frequency bound of filtering in Hz, default = 50Hz in AMT but 20Hz in SAM
+    :param f2: Upper frequency bound of filtering in Hz, default = 18 kHz in AMT but 20kHz in SAM
     :param atten: Attenuation in dB to apply to the CTF to avoid clipping, default = 20dB
     :param weights: not supported at the moment.
     :param rms: If True, evaluate CTF magnitude spectrum by RMS of linear magnitude spectra, equivalent to diffuse-field compensation instead of default log-manitude spectra
