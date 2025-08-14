@@ -13,8 +13,9 @@ You can install the package using pip:
 # Acknowledgements
 If you use this toolbox in your own work then please cite this paper: 
 
-The Extended SONICOM HRTF Dataset and Spatial Audio Metrics Toolbox
+The Extended SONICOM HRTF Dataset and Spatial Audio Metrics Toolbox (2025)
 Katarina C. Poole, Julie Meyer, Vincent Martin, Rapolas Daugintis, Nils Marggraf-Turley, Jack Webb, Ludovic Pirard, Nicola La Magna, Oliver Turvey, Lorenzo Picinali
+Forum Acusticum 2025
 https://doi.org/10.48550/arXiv.2507.05053
 
 This work was created whilst part of of the Audio Experience Design Team (https://www.axdesign.co.uk/) at Imperial College London.
