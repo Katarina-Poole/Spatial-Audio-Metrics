@@ -11,9 +11,11 @@ You can install the package using pip:
 'pip install spatialaudiometrics'
 
 # Acknowledgements
-If you use this toolbox in your own work then please cite (where x is the version number):
-*Spatial Audio Metrics 0.X, K. C. Poole, AXD, Imperial College London (https://github.com/Katarina-Poole/Spatial-Audio-Metrics)*
+If you use this toolbox in your own work then please cite this paper: 
 
+The Extended SONICOM HRTF Dataset and Spatial Audio Metrics Toolbox
+Katarina C. Poole, Julie Meyer, Vincent Martin, Rapolas Daugintis, Nils Marggraf-Turley, Jack Webb, Ludovic Pirard, Nicola La Magna, Oliver Turvey, Lorenzo Picinali
+https://doi.org/10.48550/arXiv.2507.05053
 
 This work was created whilst part of of the Audio Experience Design Team (https://www.axdesign.co.uk/) at Imperial College London.
 
