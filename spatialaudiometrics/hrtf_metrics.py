@@ -301,10 +301,10 @@ def generate_table_difference_hrtfs(hrtf1,hrtf2,type = 'hrtf'):
     df['itd_diff_us']   = (hrtf1.itd_s-hrtf2.itd_s)*1000000
     if type == 'hrtf':
         df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False)
-        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs)
+        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.hrir,hrtf2.hrir,hrtf1.fs,50,18000)
     elif type == 'dtf':
         df['ild_diff_db']   = calculate_ild_difference(hrtf1,hrtf2,False, type = 'dtf')
-        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.dtf_ir,hrtf2.dtf_ir,hrtf1.fs)
+        lsd,lsd_mat         = calculate_lsd_across_locations(hrtf1.dtf_ir,hrtf2.dtf_ir,hrtf1.fs,50,18000)
 
     df['az']            = hrtf1.locs[:,0]
     df['el']            = hrtf1.locs[:,1]
