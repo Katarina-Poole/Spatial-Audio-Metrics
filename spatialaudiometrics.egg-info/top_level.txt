@@ -1,1 +1,3 @@
+compare
+dist
 spatialaudiometrics

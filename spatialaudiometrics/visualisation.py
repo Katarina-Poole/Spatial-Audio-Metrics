@@ -629,3 +629,23 @@ def plot_confusion_sphere(df,azi_target:float,ele_target:float, point_size = 25)
     create_raw_localisation_legend(axes)
     show()
     return fig, axes
+
+
+def plot_clusters(axes, cluster_stats,x,color = 'k',count = 0):
+    '''
+    Plots the sig clusters
+    '''
+    F_obs, clusters,clusters_pv, h0 = cluster_stats
+    
+    plot_y = ((np.diff(axes.get_ylim()) * 0.05) + axes.get_ylim()[0])[0]
+    plot_gap = np.diff(axes.get_ylim())*0.005
+
+    for i,c in enumerate(clusters_pv):
+        if c < 0.05:
+            if len(color) > 1:
+                axes.hlines((plot_y+plot_gap)+(count * plot_gap * 10),xmin = x[clusters[i][0][0]], xmax = x[clusters[i][0][-1]], color = color[0])
+                axes.hlines((plot_y-plot_gap)+(count * plot_gap * 10),xmin = x[clusters[i][0][0]], xmax = x[clusters[i][0][-1]], color = color[1])
+            else:
+                axes.hlines(plot_y,xmin = x[clusters[i][0][0]], xmax = x[clusters[i][0][-1]], color = color)
+    count += 1
+    return axes,count
