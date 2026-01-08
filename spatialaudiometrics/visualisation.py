@@ -155,9 +155,9 @@ def plot_sig_bars_pairwise(axes,stats):
     except:
         print('No pairwise comparisons to plot')
 
-def plot_error_bar(axes,df,x_name,y_name,sample_name):
+def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se'):
     '''
-    Plots errors bars using standard error and mean
+    Plots errors bars using standard error or standard deviation and mean
 
     :param axes: The axes you want to plot in
     :param df: The dataframe you want to use for the error bar
@@ -168,7 +168,10 @@ def plot_error_bar(axes,df,x_name,y_name,sample_name):
 
     x       = np.arange(0,len(df[x_name].unique()),1) + 0.2
     y       = df.groupby(x_name).mean(numeric_only = True).reset_index()[y_name]
-    std     = df.groupby(x_name).std(numeric_only = True).reset_index()[y_name]/(len(df[sample_name].unique())**0.5)
+    if error == 'se':
+        std     = df.groupby(x_name).std(numeric_only = True).reset_index()[y_name]/(len(df[sample_name].unique())**0.5)
+    elif error == 'std':
+        std     = df.groupby(x_name).std(numeric_only = True).reset_index()[y_name]
     axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
 
 def annotate_p_vals(axes,pval,x_coord):
