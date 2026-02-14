@@ -87,9 +87,8 @@ def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:
         print(results) 
         pval = results.anova_table['Pr > F'].values[0]
 
-        print('Found significant differences between groups, running pairwise comparisons as well...')
-
         if pval < 0.05:
+            print('Found significant differences between groups, running pairwise comparisons as well...')
             in_text = ['was'] + [dep_col]
             # Run Tukey pairwise
             tukey_stats_table = tukey_hsd(df,dep_col,ind_col)
