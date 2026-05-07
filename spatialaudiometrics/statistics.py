@@ -66,7 +66,7 @@ def tukey_hsd(df:pd.DataFrame, dep_col:str, ind_col:list):
 
     return tukey_stats_table
 
-def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list):
+def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list,bonferroni_correction = 1):
     '''
     Runs a repeated measures ANOVA 
 
@@ -86,8 +86,7 @@ def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:
         results = AnovaRM(data=df, depvar=dep_col,subject=subject_col, within=ind_col).fit()
         print(results) 
         pval = results.anova_table['Pr > F'].values[0]
-
-        print('Found significant differences between groups, running pairwise comparisons as well...')
+        pval = pval*bonferroni_correction # Apply bonferroni correction if needed
 
         if pval < 0.05:
             in_text = ['was'] + [dep_col]
@@ -98,7 +97,7 @@ def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:
             tukey_stats_table = []
 
         # Then just print the wording to use for easy copy pasting
-        reporting_text = 'A one-way repeated measures ANOVA revealed that there ' + in_text[0] +  ' a statistically significant difference in ' + in_text[1] + ' between at least two groups (F(' + str(int(np.round(results.anova_table['Num DF'].values[0]))) + ',' + str(int(np.round(results.anova_table['Den DF'].values[0]))) + ') = ' + str(np.round(results.anova_table['F Value'].values[0],2)) + ', p = ' + str(np.round(pval,3)) + ')'
+        reporting_text = 'A one-way repeated measures ANOVA revealed that there ' + in_text[0] +  ' a statistically significant difference in ' + in_text[1] + ' between at least two groups (F(' + str(int(np.round(results.anova_table['Num DF'].values[0]))) + ',' + str(int(np.round(results.anova_table['Den DF'].values[0]))) + ') = ' + str(np.round(results.anova_table['F Value'].values[0],2)) + ', p = ' + str(np.round(pval,4)) + ')'
         
         print(reporting_text)
         print(tukey_stats_table)
@@ -107,7 +106,7 @@ def repeated_measures_anova(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:
         print('Non normal, use a non-parametric test like the Friedman instead')
         return None
     
-def run_friedman_test(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list):
+def run_friedman_test(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list,bonferroni_correction = 1):
     '''
     Compare the mean between three or more groups if the distributions are non normal using Friedman test and Wilcoxon for post hoc pairwise
 
@@ -128,6 +127,7 @@ def run_friedman_test(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list):
     
     stats = sts.friedmanchisquare(*fried_groups)
     pval = stats[1]
+    pval = pval*bonferroni_correction # Apply bonferroni correction if needed
     if pval < 0.05:
         in_text = ['was'] + [dep_col]
         # Run pairwise comparisons using wilcoxon signed rank test
@@ -146,7 +146,7 @@ def run_friedman_test(df:pd.DataFrame,dep_col:str,subject_col:str,ind_col:list):
         in_text = ['was not'] + [dep_col]
         wilcoxon_table = []
 
-    reporting_text = ['A Friedman analysis of variance revealed that there ' + in_text[0] +  ' a statistically significant difference in ' + in_text[1] + ' between at least two groups (Fr = ' + str(np.round(stats[0],2)) + ', df = ' + str(int(len(fried_groups)-1)) + ', p = ' + str(np.round(pval,3)) + ')']
+    reporting_text = ['A Friedman analysis of variance revealed that there ' + in_text[0] +  ' a statistically significant difference in ' + in_text[1] + ' between at least two groups (Fr = ' + str(np.round(stats[0],2)) + ', df = ' + str(int(len(fried_groups)-1)) + ', p = ' + str(np.round(pval,4)) + ')']
     
     print(reporting_text[0])
     print(wilcoxon_table)
