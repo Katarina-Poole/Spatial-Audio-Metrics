@@ -178,10 +178,10 @@ def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se',average = 'mea
         std     = df.groupby(x_name).std(numeric_only = True).reset_index()[y_name]
     elif error == 'iqr':
         # Calculate the inter quartile range as the 25th and 75th percentiles
-        std     = [y-df.groupby(x_name)[y_name].quantile(0.05),df.groupby(x_name)[y_name].quantile(0.95)-y]
+        std     = [y-df.groupby(x_name)[y_name].quantile(0.05).reset_index()[y_name],df.groupby(x_name)[y_name].quantile(0.95).reset_index()[y_name]-y]
         axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 1, markersize = 1)
 
-        std     = [y-df.groupby(x_name)[y_name].quantile(0.25),df.groupby(x_name)[y_name].quantile(0.75)-y]
+        std     = [y-df.groupby(x_name)[y_name].quantile(0.25).reset_index()[y_name],df.groupby(x_name)[y_name].quantile(0.75).reset_index()[y_name]-y]
     axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
 
 def annotate_p_vals(axes,pval,x_coord):
