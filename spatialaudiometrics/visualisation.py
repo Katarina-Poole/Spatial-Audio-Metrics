@@ -155,7 +155,7 @@ def plot_sig_bars_pairwise(axes,stats):
     except:
         print('No pairwise comparisons to plot')
 
-def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se',average = 'mean'):
+def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se',average = 'mean',colour = [0.3,0.3,0.3],x_stagger = 0.2):
     '''
     Plots errors bars using standard error or standard deviation and mean
 
@@ -166,9 +166,11 @@ def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se',average = 'mea
     :param sample_name: The name of the column giving the subject or sample identifier
     :param error: The type of error to plot ('se', 'std', or '95p')
     :param average: The type of average to plot ('mean' or 'median')
+    :param colour: The colour of the error bars
+    :param x_stagger: The amount to stagger the x coordinates
     '''
 
-    x       = np.arange(0,len(df[x_name].unique()),1) + 0.2
+    x       = np.arange(0,len(df[x_name].unique()),1) + x_stagger
     y       = df.groupby(x_name).mean(numeric_only = True).reset_index()[y_name]
     if average == 'median':
         y       = df.groupby(x_name).median(numeric_only = True).reset_index()[y_name]
@@ -179,10 +181,10 @@ def plot_error_bar(axes,df,x_name,y_name,sample_name,error = 'se',average = 'mea
     elif error == 'iqr':
         # Calculate the inter quartile range as the 25th and 75th percentiles
         std     = [y-df.groupby(x_name)[y_name].quantile(0.05).reset_index()[y_name],df.groupby(x_name)[y_name].quantile(0.95).reset_index()[y_name]-y]
-        axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 1, markersize = 1)
+        axes.errorbar(x, y, std, fmt='o', color = colour, linewidth = 1, markersize = 1)
 
         std     = [y-df.groupby(x_name)[y_name].quantile(0.25).reset_index()[y_name],df.groupby(x_name)[y_name].quantile(0.75).reset_index()[y_name]-y]
-    axes.errorbar(x, y, std, fmt='o', color = [0.3,0.3,0.3], linewidth = 3, markersize = 7)
+    axes.errorbar(x, y, std, fmt='o', color = colour, linewidth = 3, markersize = 7)
 
 def annotate_p_vals(axes,pval,x_coord):
     '''
