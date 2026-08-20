@@ -41,7 +41,7 @@ def calculate_spectrum(x:np.array,fs,db_flag = 1):
     freqs   = fftfreq(n,t)[:n//2]
     y       = fft(x)
     amp     = np.abs(y[0:n//2])
-    phase   = np.imag(y[0:n//2])
+    phase   = np.angle(y[0:n//2])
     db      = mag2db(amp)
     if db_flag == 1:
         spec = db
