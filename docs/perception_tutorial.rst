@@ -114,3 +114,5 @@ To get the per subject metrics use the below function (where the last arguments 
     from spatialaudiometrics import localisation_metrics as lm
 
     error_df = lm.calculate_localisation_error(df,'subject','HRTFidx')
+
+The quadrant error (``quadrant_error``) uses all responses, weighted by ``polar_weight`` as the polar metrics, so that lateral targets (where the polar error is compressed) count less and the denominator is the same for every listener and model. In our data (Measured HRTFs, 19 listeners x 2 sessions) it correlates at about 0.9 (Pearson r = 0.89) with the original Middlebrooks version, which only uses responses within 30 degrees of the median plane. To get the original version call ``lm.calculate_quadrant_error(df, weighted=False)``.
