@@ -58,16 +58,16 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
         outdf = pd.concat([outdf,temp])
     return outdf
 
-def calculate_quadrant_error(df: pd.DataFrame, weighted: bool = True):
+def calculate_quadrant_error(df: pd.DataFrame, weighted: bool = False):
     '''
     Calculates the quadrant error: the percentage of responses with an absolute polar error larger than 90 degrees
 
-    If weighted (default) all responses are used and each one is weighted by polar_weight (as for the polar accuracy and precision), so that lateral targets, where the polar error is compressed, count less.
+    By default it is the middlebrooks quadrant error like that in the AMT toolbox, which only uses responses within 30 degrees of the median plane.
+    If weighted, all responses are used and each one is weighted by polar_weight (as for the polar accuracy and precision), so that lateral targets, where the polar error is compressed, count less.
     The denominator is then the same for every listener and model. In our data (Measured HRTFs, 19 listeners x 2 sessions) it correlates at about 0.9 with the middlebrooks version.
-    If not weighted, it is the middlebrooks quadrant error like that in the AMT toolbox, which only uses responses within 30 degrees of the median plane
 
     :param df: Pandas data frame with the columns: lat_target, lat_response, pol_target, pol_response, polar_weight which has the polar and lateral coordinates for behavioural responses and auditory targets
-    :param weighted: use all responses weighted by polar_weight (default), or the unweighted middlebrooks version
+    :param weighted: use all responses weighted by polar_weight, or (default) the unweighted middlebrooks version
     '''
     if weighted:
         curr_df = df
