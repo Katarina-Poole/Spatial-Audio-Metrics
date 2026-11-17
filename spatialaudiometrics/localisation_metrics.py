@@ -58,20 +58,29 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str):
         outdf = pd.concat([outdf,temp])
     return outdf
 
-def calculate_quadrant_error(df: pd.DataFrame):
+def calculate_quadrant_error(df: pd.DataFrame, weighted: bool = False):
     '''
-    Calculates the middlebrooks quadrant error like that in the AMT toolbox
+    Calculates the quadrant error: the percentage of responses with an absolute polar error larger than 90 degrees
 
-    :param df: Pandas data frame with the columns: lat_target, lat_response, pol_target, pol_response which has the polar and lateral coordinates for behavioural responses and auditory targets
+    By default it is the middlebrooks quadrant error like that in the AMT toolbox, which only uses responses within 30 degrees of the median plane.
+    If weighted, all responses are used and each one is weighted by polar_weight (as for the polar accuracy and precision), so that lateral targets, where the polar error is compressed, count less.
+    The denominator is then the same for every listener and model. In our data (Measured HRTFs, 19 listeners x 2 sessions) it correlates at about 0.9 with the middlebrooks version.
+
+    :param df: Pandas data frame with the columns: lat_target, lat_response, pol_target, pol_response, polar_weight which has the polar and lateral coordinates for behavioural responses and auditory targets
+    :param weighted: use all responses weighted by polar_weight, or (default) the unweighted middlebrooks version
     '''
-    # Only want to look at when the response was responding in the front or back 60 degree cone
-    curr_df         = df.loc[(np.abs(df.lat_response) <= 30)]
+    if weighted:
+        curr_df = df
+        w       = curr_df.polar_weight
+    else: # Only want to look at when the response was responding in the front or back 60 degree cone
+        curr_df = df.loc[(np.abs(df.lat_response) <= 30)]
+        w       = np.ones(len(curr_df))
 
     polar_error     = np.abs((curr_df.pol_response - curr_df.pol_target).apply(am.wrap_angle))
     polar_error_idx = polar_error <= 90
     confusions      = sum(polar_error_idx)
     responses_within_lateral_range = len(curr_df)
-    querr           = 100 - (confusions/responses_within_lateral_range)*100
+    querr           = 100 - (np.sum(w*polar_error_idx)/np.sum(w))*100
 
     return querr, confusions,responses_within_lateral_range
 
