@@ -1,23 +1,32 @@
 '''
 localisation_metrics.py. Functions that calculate perceptual metrics for localisation experiments
 '''
+import warnings
 import numpy as np
 import pandas as pd
 import scipy.stats as sts
 from spatialaudiometrics import angular_metrics as am
 
-def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str, weighted_method: str = 'cos'):
+def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str, pol_local: bool = True, weighted_method: str = 'cos'):
     '''
     Calculates localisation precision and accuracy (lat and pol) like in AMT toolbox (currently only in the interaural domain for now)
     and the quadrant error and confusion classification percentages
 
-    The polar errors and the quadrant error are weighted with polar_error_weight(group, weighted_method), because of pole compression:
-    'cos' (default), 'cos2', 'split' (only targets within 30 degrees of the median plane, as the middlebrooks quadrant error) or 'none'.
+    However, there are a couple of changes with respect to the AMT:
+        1. The polar errors and the quadrant error are weighted to account for the compression of the sagittal plane towards the lateral angles (see polar_error_weight).
+        2. The polar accuracy and precision are local by default: only the responses without quadrant error (|polar error| <= 90 degrees, before weighting) are used,
+           because the quadrant errors inflate the global spread, which then partly measures the quadrant error again. Report them together with quadrant_error.
 
     :param df: data frame thats been preprocessed by load_behav_data.preprocess_localisation_data
     :param grouping_vars: columns that you want to group the table when calculating the mean (e.g. 'subjectID','HRTFidx')
+    :param pol_local: True (default): polar accuracy and precision only for the responses without quadrant error (|polar error| <= 90 degrees,
+        before weighting), the recommended ones (Middlebrooks 1999) -> columns pol_local_*. Report them together with quadrant_error, because the
+        front-back confusions are left out of them. False: the global ones (all responses) -> columns pol_*, which the quadrant errors inflate (warning).
     :param weighted_method: weight of the polar errors and the quadrant error, see polar_error_weight
     '''
+    if not pol_local:
+        warnings.warn("Global polar accuracy and precision (pol_local=False) include the quadrant errors, which inflate them. "
+                      "Better report the local ones (pol_local=True) together with quadrant_error.", UserWarning, stacklevel=2)
     grouping_list = list()
     for i,group_name in enumerate(grouping_vars):
         grouping_list.append(group_name)
@@ -32,19 +41,24 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str, weighted_
         lat_precision       = np.std(group.lat_response-group.lat_target) # Dont need circular as not bound
         lat_abs_precision   = np.std(np.abs(group.lat_response-group.lat_target)) # Dont need circular as not bound
 
-        # Polar accuracy and precision only for the responses without quadrant error (|polar error| <= 90 degrees,
-        # before weighting), as middlebrooks: with front-back confusions the polar errors are bimodal,
-        # and their mean and spread do not describe that distribution.
-        # The error is wrapped, and weighted due to pole compression.
+        # The polar errors are weighted due to pole compression
         w,used              = polar_error_weight(group, method=weighted_method)
-        error               = (group.pol_response-group.pol_target).apply(am.wrap_angle)
-        local               = used & (np.abs(error) <= 90)
-        pol_error           = error[local]*w[local]
-        pol_accuracy        = sts.circmean(pol_error,high = 270, low = -90)
-        pol_abs_accuracy    = np.mean(np.abs(pol_error))
-
-        pol_precision       = sts.circstd(pol_error,high = 270, low = -90)
-        pol_abs_precision   = np.std(np.abs(pol_error))
+        if pol_local:
+            # Local (new standard): only responses without quadrant error (|polar error| <= 90 degrees, before weighting).
+            # We recommend reporting these values together with quadrant_error.
+            error               = (group.pol_response-group.pol_target).apply(am.wrap_angle)
+            pol_error           = (error*w)[used & (np.abs(error) <= 90)]
+            prefix              = 'pol_local_'
+        else:
+            # Global polar accuracy and precision (all responses). The quadrant errors inflate the polar spread, so these values
+            # partly measure the quadrant error again; we recommend the local version instead.
+            pol_error           = ((group.pol_response-group.pol_target)*w)[used]
+            prefix              = 'pol_'
+        # For the circular stats modules don't need to wrap errors which is nice!
+        polar = {prefix+'accuracy':     sts.circmean(pol_error,high = 270, low = -90),
+                 prefix+'abs_accuracy': np.mean(np.abs(pol_error)),
+                 prefix+'precision':    sts.circstd(pol_error,high = 270, low = -90),
+                 prefix+'abs_precision':np.std(np.abs(pol_error))}
 
         # Calculate the quadrant error
         quadrant_error,confusions,responses_within_lateral_range = calculate_quadrant_error(group, weighted_method)
@@ -55,14 +69,16 @@ def calculate_localisation_error(df: pd.DataFrame,*grouping_vars: str, weighted_
         in_cone_confusion       = (len(group.loc[(group.confusion_classification == 'in-cone')])/len(group))*100
         off_cone_confusion      = (len(group.loc[(group.confusion_classification == 'off-cone')])/len(group))*100
 
-        temp = pd.DataFrame([[lat_accuracy,lat_precision,pol_accuracy,pol_precision,
-                              lat_abs_accuracy,lat_abs_precision,pol_abs_accuracy,pol_abs_precision,
-                              quadrant_error,confusions,responses_within_lateral_range,
-                              precision_confusion,front_back_confusion,in_cone_confusion,off_cone_confusion]],
-                            columns = ['lat_accuracy','lat_precision','pol_accuracy','pol_precision',
-                              'lat_abs_accuracy','lat_abs_precision','pol_abs_accuracy','pol_abs_precision',
-                              'quadrant_error','confusions','responses_within_lateral_range',
-                              'precision_confusion','front_back_confusion','in_cone_confusion','off_cone_confusion'])
+        # Prepare output
+        row = dict(lat_accuracy=lat_accuracy,lat_precision=lat_precision,
+                   lat_abs_accuracy=lat_abs_accuracy,lat_abs_precision=lat_abs_precision,
+                   quadrant_error=quadrant_error,confusions=confusions,responses_within_lateral_range=responses_within_lateral_range,
+                   precision_confusion=precision_confusion,front_back_confusion=front_back_confusion,in_cone_confusion=in_cone_confusion,off_cone_confusion=off_cone_confusion)
+        # add polar
+        row.update(polar)
+
+
+        temp = pd.DataFrame([row])
         for group_name in grouping_list:
             temp[group_name] = group[group_name].unique()[0] # Will always take the first
 

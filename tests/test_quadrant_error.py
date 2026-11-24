@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import pandas as pd
 from spatialaudiometrics import localisation_metrics as lm
 
@@ -47,23 +48,29 @@ def test_localisation_error_weighted_method():
     df = make_df([0, 0], [10, 10], [0, 60])
     df['g'] = 1
     df['confusion_classification'] = 'precision'
-    f = lambda m: lm.calculate_localisation_error(df, 'g', weighted_method=m).pol_abs_accuracy[0]
+    f = lambda m: lm.calculate_localisation_error(df, 'g', weighted_method=m).pol_local_abs_accuracy[0]
     assert np.isclose(f('none'), 10)
     assert np.isclose(f('cos'), 7.5)
     assert np.isclose(f('split'), 10)   # the lateral response is left out, not counted as zero error
 
 
-def test_polar_metrics_without_quadrant_errors():
-    # polar errors of 10, -20 and a front-back confusion (170): the confusion is left out of the polar metrics (before weighting)
+def test_polar_local_metrics():
+    # polar errors of 10, -20 and a front-back confusion (170): the confusion is only left out of the local metrics (before weighting)
     df = make_df([0, 0, 0], [10, -20, 170], [0, 0, 0])
     df['g'] = 1
     df['confusion_classification'] = 'precision'
     out = lm.calculate_localisation_error(df, 'g')
-    assert np.isclose(out.pol_abs_accuracy[0], 15)
-    assert np.isclose(out.pol_accuracy[0], -5)
+    assert np.isclose(out.pol_local_abs_accuracy[0], 15)
+    assert np.isclose(out.pol_local_accuracy[0], -5)
     assert np.isclose(out.quadrant_error[0], 100 / 3)
+    assert not any(c.startswith('pol_') and not c.startswith('pol_local') for c in out.columns)
+    # the global ones include the confusion, with a warning
+    with pytest.warns(UserWarning, match='quadrant_error'):
+        out = lm.calculate_localisation_error(df, 'g', pol_local=False)
+    assert np.isclose(out.pol_abs_accuracy[0], 200 / 3)
+    assert not any(c.startswith('pol_local') for c in out.columns)
     # a 350 vs 10 deg response is a 20 deg error, wrapped before the weighting
     df = make_df([350], [10], [60])
     df['g'] = 1
     df['confusion_classification'] = 'precision'
-    assert np.isclose(lm.calculate_localisation_error(df, 'g').pol_abs_accuracy[0], 20 * 0.5)
+    assert np.isclose(lm.calculate_localisation_error(df, 'g').pol_local_abs_accuracy[0], 20 * 0.5)
