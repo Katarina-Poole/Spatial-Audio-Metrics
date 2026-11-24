@@ -153,7 +153,7 @@ def preprocess_behavioural_data(df:pd.DataFrame,cone_size_degrees = 45):
         df.at[i,'confusion_classification'] = lm.classify_confusion(df.iloc[i],cone_size_degrees=cone_size_degrees)
 
     # Calculate weighting
-    df['polar_weight']           = lm.polar_error_weight(df)
+    df['polar_weight'], _        = lm.polar_error_weight(df)
 
     # Calculate errors
     df['signed_lateral_error']   = df.lat_response - df.lat_target
